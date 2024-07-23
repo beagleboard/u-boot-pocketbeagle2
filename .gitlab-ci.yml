@@ -1,0 +1,35 @@
+image: robertcnelson/beagle-devscripts-kernel-debian-12-arm64:latest
+# https://openbeagle.org/beagleboard/ci-docker-images
+
+before_script:
+  - apt-get update
+  - apt-get upgrade -yq
+  - apt-get install -yq device-tree-compiler gcc-arm-linux-gnueabihf libgnutls28-dev python3-cryptography python3-dev python3-jsonschema python3-pycryptodome python3-pyelftools python3-setuptools python3-yaml swig uuid-dev yamllint
+
+cache:
+  key: "$CI_PROJECT_NAME"
+  paths:
+    - ccache.tar.lz4
+
+pages:
+  tags:
+    - docker-aarch64-ci 
+  stage: build
+  script:
+    - git config --global user.email "$GITLAB_USER_EMAIL"
+    - git config --global user.name "$GITLAB_USER_NAME"
+    - git config --global advice.detachedHead false
+    - touch .localgit
+    - time tar --use-compress-program=lz4 -xf ccache.tar.lz4 -C / || true
+    - mkdir -p /root/.cache/ccache/ || true
+    - ccache -s
+    - ./build_uboot.sh
+    - ccache -s
+    - time tar --use-compress-program=lz4 -cf ccache.tar.lz4 /root/.cache/ccache/
+    - apindex public
+  artifacts:
+    when: on_success
+    paths:
+      - public
+  only:
+  - main
