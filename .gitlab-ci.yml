@@ -19,7 +19,6 @@ pages:
     - git config --global user.email "$GITLAB_USER_EMAIL"
     - git config --global user.name "$GITLAB_USER_NAME"
     - git config --global advice.detachedHead false
-    - touch .localgit
     - time tar --use-compress-program=lz4 -xf ccache.tar.lz4 -C / || true
     - mkdir -p /root/.cache/ccache/ || true
     - ccache -s
