@@ -37,7 +37,7 @@ fi
 #git -c http.sslVerify=false clone -b master https://git.gfnd.rcn-ee.org/mirror/u-boot.git
 #git -c http.sslVerify=false clone -b v2024.10-rc1 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
 #git -c http.sslVerify=false clone -b v2024.07 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
-git clone -b v2024.10-rc1-BeagleBoneAI64 https://github.com/u-boot/u-boot.git
+git clone -b v2024.10-rc1-BeagleBoneAI64 https://github.com/beagleboard/u-boot.git
 
 #cd ./u-boot/
 #git bisect start
