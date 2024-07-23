@@ -48,6 +48,7 @@ git bisect bad bf3d5baa868a658d4625aaf177096751b8597891
 git bisect good 4095df4634b4791d83cf86ad94e43b83057830f4
 git bisect good c16aa668fd9fc8e98c74e19cd7cd95aef3873dbd
 git bisect good 227be29df37545f74243a98c12a4a33c4160e3cd
+git bisect good e9774afedd20bfe8a18b20a63010c1d18cd16cd7
 
 cd ${DIR}/
 
