@@ -13,7 +13,7 @@ cache:
 
 pages:
   tags:
-    - docker-aarch64-ci 
+    - docker-aarch64-rpi5-ci
   stage: build
   script:
     - git config --global user.email "$GITLAB_USER_EMAIL"
