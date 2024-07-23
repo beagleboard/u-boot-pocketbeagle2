@@ -11,8 +11,8 @@ ${CC64}gcc --version
 DIR=$PWD
 
 if [ ! -d ./ti-linux-firmware/ ] ; then
-	#git clone -b ti-linux-firmware https://openbeagle.org/beagleboard/ti-linux-firmware.git --depth=10
-	git -c http.sslVerify=false clone -b ti-linux-firmware https://git.gfnd.rcn-ee.org/TexasInstruments/ti-linux-firmware.git --depth=10
+	#git clone -b 10.00.06 https://openbeagle.org/beagleboard/ti-linux-firmware.git --depth=10
+	git -c http.sslVerify=false clone -b 10.00.06 https://git.gfnd.rcn-ee.org/TexasInstruments/ti-linux-firmware.git --depth=10
 else
 	cd ./ti-linux-firmware/
 	git pull --rebase
@@ -29,8 +29,8 @@ else
 fi
 
 if [ ! -d ./optee_os/ ] ; then
-	#git clone -b master https://github.com/OP-TEE/optee_os.git --depth=10
-	git -c http.sslVerify=false clone -b master https://git.gfnd.rcn-ee.org/mirror/optee_os.git --depth=10
+	#git clone -b 4.3.0 https://github.com/OP-TEE/optee_os.git --depth=10
+	git -c http.sslVerify=false clone -b 4.3.0 https://git.gfnd.rcn-ee.org/mirror/optee_os.git --depth=10
 else
 	cd ./optee_os/
 	git pull --rebase
@@ -40,19 +40,19 @@ fi
 if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
-#git clone https://github.com/u-boot/u-boot.git
-git -c http.sslVerify=false clone https://git.gfnd.rcn-ee.org/mirror/u-boot.git
+#git clone -b v2024.10-rc1 https://github.com/u-boot/u-boot.git
+#git -c http.sslVerify=false clone -b master https://git.gfnd.rcn-ee.org/mirror/u-boot.git
+git -c http.sslVerify=false clone -b v2024.10-rc1 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
+#git -c http.sslVerify=false clone -b v2024.07 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
 
 mkdir -p ${DIR}/public/
 
+#beagleboneai64
 SOC_NAME=j721e
 SECURITY_TYPE=gp
-
 TFA_BOARD=generic
-
 OPTEE_PLATFORM=k3-j721e
 OPTEE_EXTRA_ARGS=""
-
 UBOOT_CFG_CORTEXR="j721e_beagleboneai64_r5_defconfig"
 UBOOT_CFG_CORTEXA="j721e_beagleboneai64_a72_defconfig"
 
@@ -83,10 +83,11 @@ echo "make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR
 make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE="ccache $CC32" BINMAN_INDIRS=${DIR}/ti-linux-firmware/
 
 if [ ! -f ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ] ; then
-	echo "Failure in u-boot $UBOOT_CFG_CORTEXR"
+	echo "Failure in u-boot CORTEXR build of [$UBOOT_CFG_CORTEXR]"
+	ls -lha ${DIR}/CORTEXR/
 else
 	cp -v ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ${DIR}/public/tiboot3.bin
-	if [ ! -f ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ] ; then
+	if [ -f ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ] ; then
 		cp -v ./tmp/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ${DIR}/public/sysfw.itb
 	fi
 fi
@@ -102,7 +103,8 @@ if [ -f ${DIR}/public/bl31.bin ] ; then
 		make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE="ccache $CC64" BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
 
 		if [ ! -f ${DIR}/CORTEXA/tispl.bin ] ; then
-			echo "Failure in u-boot $UBOOT_CFG_CORTEXA"
+			echo "Failure in u-boot CORTEXA build of [$UBOOT_CFG_CORTEXA]"
+			ls -lha ${DIR}/CORTEXA/
 		else
 			cp -v ${DIR}/CORTEXA/tispl.bin_unsigned ${DIR}/public/tispl.bin || true
 			cp -v ${DIR}/CORTEXA/u-boot.img_unsigned ${DIR}/public/u-boot.img || true
