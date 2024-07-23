@@ -43,9 +43,16 @@ if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
 #git clone -b v2024.10-rc1 https://github.com/u-boot/u-boot.git
-#git -c http.sslVerify=false clone -b master https://git.gfnd.rcn-ee.org/mirror/u-boot.git
+git -c http.sslVerify=false clone -b master https://git.gfnd.rcn-ee.org/mirror/u-boot.git
 #git -c http.sslVerify=false clone -b v2024.10-rc1 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
-git -c http.sslVerify=false clone -b v2024.07 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
+#git -c http.sslVerify=false clone -b v2024.07 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
+
+cd ./u-boot/
+git bisect start
+git bisect good 3f772959501c99fbe5aa0b22a36efe3478d1ae1c
+git bisect bad 123f6f75dfcb5f88d821e4eb91ddedfb7718d601
+
+cd ${DIR}/
 
 mkdir -p ${DIR}/public/
 
