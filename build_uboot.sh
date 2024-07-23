@@ -2,6 +2,8 @@
 
 #apt-get install -y -q bc bison device-tree-compiler flex gcc-arm-linux-gnueabihf libssl-dev python3-cryptography python3-dev python3-jsonschema python3-pycryptodome python3-pyelftools python3-setuptools python3-yaml swig yamllint
 
+#wget https://robertcnelson.beagleboard.io/u-boot-bisect/get_n_install.sh ; chmod +x get_n_install.sh ; sudo ./get_n_install.sh
+
 CC32=arm-linux-gnueabihf-
 CC64=aarch64-linux-gnu-
 
@@ -42,14 +44,15 @@ if [ -d ./u-boot/ ] ; then
 fi
 #git clone -b v2024.10-rc1 https://github.com/u-boot/u-boot.git
 #git -c http.sslVerify=false clone -b master https://git.gfnd.rcn-ee.org/mirror/u-boot.git
-git -c http.sslVerify=false clone -b v2024.10-rc1 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
-#git -c http.sslVerify=false clone -b v2024.07 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
+#git -c http.sslVerify=false clone -b v2024.10-rc1 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
+git -c http.sslVerify=false clone -b v2024.07 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
 
 mkdir -p ${DIR}/public/
 
 #beagleboneai64
 SOC_NAME=j721e
 SECURITY_TYPE=gp
+SIGNED=_unsigned
 TFA_BOARD=generic
 OPTEE_PLATFORM=k3-j721e
 OPTEE_EXTRA_ARGS=""
@@ -61,6 +64,7 @@ make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE="ccache $CC64" CFLAGS= LDFLAGS= 
 
 if [ ! -f ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ] ; then
 	echo "Failure in ./trusted-firmware-a/"
+	ls -lha ${DIR}/trusted-firmware-a/
 else
 	cp -v ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ${DIR}/public/
 fi
@@ -70,6 +74,7 @@ make -C ./optee_os/ -j4 O=../optee CROSS_COMPILE="ccache $CC32" CROSS_COMPILE64=
 
 if [ ! -f ./optee/core/tee-pager_v2.bin ] ; then
 	echo "Failure in ${OPTEE_DIR}"
+	ls -lha ${DIR}/optee/
 else
 	cp -v ./optee/core/tee-pager_v2.bin ${DIR}/public/
 fi
@@ -102,12 +107,12 @@ if [ -f ${DIR}/public/bl31.bin ] ; then
 		echo "make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/${DEVICE}/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
 		make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE="ccache $CC64" BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
 
-		if [ ! -f ${DIR}/CORTEXA/tispl.bin_unsigned ] ; then
+		if [ ! -f ${DIR}/CORTEXA/tispl.bin${SIGNED} ] ; then
 			echo "Failure in u-boot CORTEXA build of [$UBOOT_CFG_CORTEXA]"
 			ls -lha ${DIR}/CORTEXA/
 		else
-			cp -v ${DIR}/CORTEXA/tispl.bin_unsigned ${DIR}/public/tispl.bin || true
-			cp -v ${DIR}/CORTEXA/u-boot.img_unsigned ${DIR}/public/u-boot.img || true
+			cp -v ${DIR}/CORTEXA/tispl.bin${SIGNED} ${DIR}/public/tispl.bin || true
+			cp -v ${DIR}/CORTEXA/u-boot.img${SIGNED} ${DIR}/public/u-boot.img || true
 		fi
 	else
 		echo "Missing ${DIR}/public/tee-pager_v2.bin"
