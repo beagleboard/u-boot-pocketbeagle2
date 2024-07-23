@@ -5,6 +5,22 @@ if ! id | grep -q root; then
 	exit
 fi
 
+if [ -f ./sysfw.itb ] ; then
+	rm -rf ./sysfw.itb || true
+fi
+
+if [ -f ./tiboot3.bin ] ; then
+	rm -rf ./tiboot3.bin || true
+fi
+
+if [ -f ./tispl.bin ] ; then
+	rm -rf ./tispl.bin || true
+fi
+
+if [ -f ./u-boot.img ] ; then
+	rm -rf ./u-boot.img || true
+fi
+
 wget https://robertcnelson.beagleboard.io/u-boot-bisect/sysfw.itb
 wget https://robertcnelson.beagleboard.io/u-boot-bisect/tiboot3.bin
 wget https://robertcnelson.beagleboard.io/u-boot-bisect/tispl.bin

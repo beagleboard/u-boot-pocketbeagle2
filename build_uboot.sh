@@ -12,31 +12,22 @@ ${CC64}gcc --version
 
 DIR=$PWD
 
+#rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
 	#git clone -b 10.00.06 https://openbeagle.org/beagleboard/ti-linux-firmware.git --depth=10
 	git -c http.sslVerify=false clone -b 10.00.06 https://git.gfnd.rcn-ee.org/TexasInstruments/ti-linux-firmware.git --depth=10
-else
-	cd ./ti-linux-firmware/
-	git pull --rebase
-	cd ../
 fi
 
+#rm -rf ./trusted-firmware-a/ || true
 if [ ! -d ./trusted-firmware-a/ ] ; then
 	#git clone -b master https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git --depth=10
 	git -c http.sslVerify=false clone -b master https://git.gfnd.rcn-ee.org/mirror/trusted-firmware-a.git --depth=10
-else
-	cd ./trusted-firmware-a/
-	git pull --rebase
-	cd ../
 fi
 
+#rm -rf ./optee_os/ || true
 if [ ! -d ./optee_os/ ] ; then
 	#git clone -b 4.3.0 https://github.com/OP-TEE/optee_os.git --depth=10
 	git -c http.sslVerify=false clone -b 4.3.0 https://git.gfnd.rcn-ee.org/mirror/optee_os.git --depth=10
-else
-	cd ./optee_os/
-	git pull --rebase
-	cd ../
 fi
 
 if [ -d ./u-boot/ ] ; then
@@ -51,6 +42,7 @@ cd ./u-boot/
 git bisect start
 git bisect good 3f772959501c99fbe5aa0b22a36efe3478d1ae1c
 git bisect bad 123f6f75dfcb5f88d821e4eb91ddedfb7718d601
+git bisect bad 005105b11cefe694dcd40572639973fbb9b31646
 
 cd ${DIR}/
 
@@ -130,5 +122,9 @@ else
 fi
 
 rm -rf ${DIR}/CORTEXA/ || true
+
+cd ./u-boot/
+git bisect log
+cd ${DIR}/
 #
 
