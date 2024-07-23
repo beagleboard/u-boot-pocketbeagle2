@@ -43,6 +43,7 @@ git bisect start
 git bisect good 3f772959501c99fbe5aa0b22a36efe3478d1ae1c
 git bisect bad 123f6f75dfcb5f88d821e4eb91ddedfb7718d601
 git bisect bad 005105b11cefe694dcd40572639973fbb9b31646
+git bisect bad d8c213c9c7f827a9de0096bb4e5247c9a07bb248
 
 cd ${DIR}/
 
@@ -127,4 +128,3 @@ cd ./u-boot/
 git bisect log
 cd ${DIR}/
 #
-
