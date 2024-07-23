@@ -34,28 +34,26 @@ else
 	cd ../
 fi
 
-if [ -d ./ti-u-boot/ ] ; then
-	rm -rf ./ti-u-boot/
+if [ -d ./u-boot/ ] ; then
+	rm -rf ./u-boot/
 fi
-git clone -b v2023.04-ti-09.02.00.009-BeagleY-AI https://github.com/beagleboard/u-boot.git ./ti-u-boot/ --depth=10
+git clone https://github.com/u-boot/u-boot.git
 
 mkdir -p ${DIR}/public/
 
-SOC_NAME=j722s
-SECURITY_TYPE=hs-fs
+SOC_NAME=j721e
+SECURITY_TYPE=gp
 
-#TFA_TAG=v2.10.0
-TFA_BOARD=lite
+TFA_BOARD=generic
 
-#OPTEE_TAG=4.1.0
-OPTEE_PLATFORM=k3-am62x
-OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y CFG_TEE_CORE_LOG_LEVEL=1"
+OPTEE_PLATFORM=k3-j721e
+OPTEE_EXTRA_ARGS=""
 
-UBOOT_CFG_CORTEXR="j722s_evm_r5_defconfig"
-UBOOT_CFG_CORTEXA="j722s_evm_a53_defconfig"
+UBOOT_CFG_CORTEXR="j721e_beagleboneai64_r5_defconfig"
+UBOOT_CFG_CORTEXA="j721e_beagleboneai64_a72_defconfig"
 
 echo "make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
-make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
+make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE="ccache $CC64" CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
 
 if [ ! -f ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ] ; then
 	echo "Failure in ./trusted-firmware-a/"
@@ -64,7 +62,7 @@ else
 fi
 
 echo "make -C ./optee_os/ -j4 O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all"
-make -C ./optee_os/ -j4 O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all
+make -C ./optee_os/ -j4 O=../optee CROSS_COMPILE="ccache $CC32" CROSS_COMPILE64="ccache $CC64" CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all
 
 if [ ! -f ./optee/core/tee-pager_v2.bin ] ; then
 	echo "Failure in ${OPTEE_DIR}"
@@ -74,16 +72,19 @@ fi
 
 rm -rf ${DIR}/optee/ || true
 
-echo "make -C ./ti-u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR"
+echo "make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR"
 make -C ./ti-u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR
 
-echo "make -C ./ti-u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
-make -C ./ti-u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/
+echo "make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
+make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE="ccache $CC32" BINMAN_INDIRS=${DIR}/ti-linux-firmware/
 
 if [ ! -f ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ] ; then
 	echo "Failure in u-boot $UBOOT_CFG_CORTEXR"
 else
 	cp -v ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ${DIR}/public/tiboot3.bin
+	if [ ! -f ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ] ; then
+		cp -v ./tmp/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ${DIR}/public/sysfw.itb
+	fi
 fi
 
 rm -rf ${DIR}/CORTEXR/ || true
@@ -94,13 +95,13 @@ if [ -f ${DIR}/public/bl31.bin ] ; then
 		make -C ./ti-u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA
 
 		echo "make -C ./ti-u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/${DEVICE}/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
-		make -C ./ti-u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
+		make -C ./ti-u-boot/ -j4 O=../CORTEXA CROSS_COMPILE="ccache $CC64" BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
 
 		if [ ! -f ${DIR}/CORTEXA/tispl.bin ] ; then
 			echo "Failure in u-boot $UBOOT_CFG_CORTEXA"
 		else
-			cp -v ${DIR}/CORTEXA/tispl.bin ${DIR}/public/tispl.bin || true
-			cp -v ${DIR}/CORTEXA/u-boot.img ${DIR}/public/u-boot.img || true
+			cp -v ${DIR}/CORTEXA/tispl.bin_unsigned ${DIR}/public/tispl.bin || true
+			cp -v ${DIR}/CORTEXA/u-boot.img_unsigned ${DIR}/public/u-boot.img || true
 		fi
 	else
 		echo "Missing ${DIR}/public/tee-pager_v2.bin"
