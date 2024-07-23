@@ -34,26 +34,26 @@ if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
 #git clone -b v2024.10-rc1 https://github.com/u-boot/u-boot.git
-git -c http.sslVerify=false clone -b master https://git.gfnd.rcn-ee.org/mirror/u-boot.git
+#git -c http.sslVerify=false clone -b master https://git.gfnd.rcn-ee.org/mirror/u-boot.git
 #git -c http.sslVerify=false clone -b v2024.10-rc1 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
 #git -c http.sslVerify=false clone -b v2024.07 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
+git clone -b v2024.10-rc1-BeagleBoneAI64 https://github.com/u-boot/u-boot.git
 
-cd ./u-boot/
-git bisect start
-git bisect good 3f772959501c99fbe5aa0b22a36efe3478d1ae1c
-git bisect bad 123f6f75dfcb5f88d821e4eb91ddedfb7718d601
-git bisect bad 005105b11cefe694dcd40572639973fbb9b31646
-git bisect bad d8c213c9c7f827a9de0096bb4e5247c9a07bb248
-git bisect bad bf3d5baa868a658d4625aaf177096751b8597891
-git bisect good 4095df4634b4791d83cf86ad94e43b83057830f4
-git bisect good c16aa668fd9fc8e98c74e19cd7cd95aef3873dbd
-git bisect good 227be29df37545f74243a98c12a4a33c4160e3cd
-git bisect good e9774afedd20bfe8a18b20a63010c1d18cd16cd7
-git bisect good 54c93718b38c58160a018bb6a267a6b8b47469c4
-git bisect good c9507f07a1d6c92bd1f73fd64384f8c5994be9c2
-git bisect good 48639c705026b5556e60320aef01a94a9ee45be3
-
-cd ${DIR}/
+#cd ./u-boot/
+#git bisect start
+#git bisect good 3f772959501c99fbe5aa0b22a36efe3478d1ae1c
+#git bisect bad 123f6f75dfcb5f88d821e4eb91ddedfb7718d601
+#git bisect bad 005105b11cefe694dcd40572639973fbb9b31646
+#git bisect bad d8c213c9c7f827a9de0096bb4e5247c9a07bb248
+#git bisect bad bf3d5baa868a658d4625aaf177096751b8597891
+#git bisect good 4095df4634b4791d83cf86ad94e43b83057830f4
+#git bisect good c16aa668fd9fc8e98c74e19cd7cd95aef3873dbd
+#git bisect good 227be29df37545f74243a98c12a4a33c4160e3cd
+#git bisect good e9774afedd20bfe8a18b20a63010c1d18cd16cd7
+#git bisect good 54c93718b38c58160a018bb6a267a6b8b47469c4
+#git bisect good c9507f07a1d6c92bd1f73fd64384f8c5994be9c2
+#git bisect good 48639c705026b5556e60320aef01a94a9ee45be3
+#cd ${DIR}/
 
 mkdir -p ${DIR}/public/
 
@@ -132,7 +132,7 @@ fi
 
 rm -rf ${DIR}/CORTEXA/ || true
 
-cd ./u-boot/
-git bisect log
-cd ${DIR}/
+#cd ./u-boot/
+#git bisect log
+#cd ${DIR}/
 #
