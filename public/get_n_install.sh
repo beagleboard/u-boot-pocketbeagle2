@@ -27,4 +27,11 @@ if [ -d /boot/firmware/ ] ; then
 	cp -v ./u-boot.img /boot/firmware/
 	sync
 fi
+
+if [ -d /boot/efi/ ] ; then
+	cp -v ./tiboot3.bin /boot/efi/
+	cp -v ./tispl.bin /boot/efi/
+	cp -v ./u-boot.img /boot/efi/
+	sync
+fi
 #
