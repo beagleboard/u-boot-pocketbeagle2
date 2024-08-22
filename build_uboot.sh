@@ -21,7 +21,7 @@ fi
 #rm -rf ./trusted-firmware-a/ || true
 if [ ! -d ./trusted-firmware-a/ ] ; then
 	#git clone -b master https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git --depth=10
-	git -c http.sslVerify=false clone -b master https://git.gfnd.rcn-ee.org/mirror/trusted-firmware-a.git --depth=10
+	git -c http.sslVerify=false clone -b v2.11.0 https://git.gfnd.rcn-ee.org/mirror/trusted-firmware-a.git --depth=10
 fi
 
 #rm -rf ./optee_os/ || true
