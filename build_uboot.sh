@@ -33,39 +33,18 @@ fi
 if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
-#git clone -b v2024.10-rc1 https://github.com/u-boot/u-boot.git
-#git -c http.sslVerify=false clone -b master https://git.gfnd.rcn-ee.org/mirror/u-boot.git
-#git -c http.sslVerify=false clone -b v2024.10-rc1 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
-#git -c http.sslVerify=false clone -b v2024.07 https://git.gfnd.rcn-ee.org/mirror/u-boot.git
-git clone -b v2024.10-rc1-BeagleBoneAI64 https://github.com/beagleboard/u-boot.git
+git clone -b v2023.04-ti-09.02.00.009-BeagleY-AI-Production https://github.com/beagleboard/u-boot.git
 
-#cd ./u-boot/
-#git bisect start
-#git bisect good 3f772959501c99fbe5aa0b22a36efe3478d1ae1c
-#git bisect bad 123f6f75dfcb5f88d821e4eb91ddedfb7718d601
-#git bisect bad 005105b11cefe694dcd40572639973fbb9b31646
-#git bisect bad d8c213c9c7f827a9de0096bb4e5247c9a07bb248
-#git bisect bad bf3d5baa868a658d4625aaf177096751b8597891
-#git bisect good 4095df4634b4791d83cf86ad94e43b83057830f4
-#git bisect good c16aa668fd9fc8e98c74e19cd7cd95aef3873dbd
-#git bisect good 227be29df37545f74243a98c12a4a33c4160e3cd
-#git bisect good e9774afedd20bfe8a18b20a63010c1d18cd16cd7
-#git bisect good 54c93718b38c58160a018bb6a267a6b8b47469c4
-#git bisect good c9507f07a1d6c92bd1f73fd64384f8c5994be9c2
-#git bisect good 48639c705026b5556e60320aef01a94a9ee45be3
-#cd ${DIR}/
 
 mkdir -p ${DIR}/public/
 
-#beagleboneai64
-SOC_NAME=j721e
-SECURITY_TYPE=gp
-SIGNED=_unsigned
-TFA_BOARD=generic
-OPTEE_PLATFORM=k3-j721e
+#beagley-ai
+SOC_NAME=j722s
+SECURITY_TYPE=hs-fs
+SIGNED=
+TFA_BOARD=lite
+OPTEE_PLATFORM=k3-am62x
 OPTEE_EXTRA_ARGS=""
-UBOOT_CFG_CORTEXR="j721e_beagleboneai64_r5_defconfig"
-UBOOT_CFG_CORTEXA="j721e_beagleboneai64_a72_defconfig"
 
 echo "make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
 make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE="ccache $CC64" CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
@@ -89,8 +68,8 @@ fi
 
 rm -rf ${DIR}/optee/ || true
 
-echo "make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR"
-make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR
+echo "make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 j722s_evm_r5_defconfig am67a_beagley_ai_r5.config"
+make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 j722s_evm_r5_defconfig am67a_beagley_ai_r5.config
 
 echo "make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
 make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE="ccache $CC32" BINMAN_INDIRS=${DIR}/ti-linux-firmware/
@@ -109,8 +88,8 @@ rm -rf ${DIR}/CORTEXR/ || true
 
 if [ -f ${DIR}/public/bl31.bin ] ; then
 	if [ -f ${DIR}/public/tee-pager_v2.bin ] ; then
-		echo "make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA"
-		make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA
+		echo "make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 j722s_evm_a53_defconfig am67a_beagley_ai_a53.config"
+		make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 j722s_evm_a53_defconfig am67a_beagley_ai_a53.config
 
 		echo "make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/${DEVICE}/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
 		make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE="ccache $CC64" BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/

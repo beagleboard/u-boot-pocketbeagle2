@@ -21,9 +21,9 @@ pages:
     - git config --global advice.detachedHead false
     - time tar --use-compress-program=lz4 -xf ccache.tar.lz4 -C / || true
     - mkdir -p /root/.cache/ccache/ || true
-    - ccache -s
+    - ccache -z
     - ./build_uboot.sh
-    - ccache -s
+    - ccache -sv
     - time tar --use-compress-program=lz4 -cf ccache.tar.lz4 /root/.cache/ccache/
     - apindex public
   artifacts:
