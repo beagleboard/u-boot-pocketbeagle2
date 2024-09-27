@@ -21,8 +21,10 @@ UBOOT="v2024.10-rc1"
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
 	if [ -f .gitlab-runner ] ; then
+		echo "git clone -b ${TI_FIRMWARE} https://git.gfnd.rcn-ee.org/TexasInstruments/ti-linux-firmware.git"
 		git clone -b ${TI_FIRMWARE} https://git.gfnd.rcn-ee.org/TexasInstruments/ti-linux-firmware.git --depth=10
 	else
+		echo "git clone -b ${TI_FIRMWARE} https://github.com/beagleboard/ti-linux-firmware.git"
 		git clone -b ${TI_FIRMWARE} https://github.com/beagleboard/ti-linux-firmware.git --depth=10
 	fi
 fi
@@ -30,8 +32,10 @@ fi
 #rm -rf ./trusted-firmware-a/ || true
 if [ ! -d ./trusted-firmware-a/ ] ; then
 	if [ -f .gitlab-runner ] ; then
+		echo "git clone -b ${TRUSTED_FIRMWARE} https://git.gfnd.rcn-ee.org/mirror/trusted-firmware-a.git"
 		git clone -b ${TRUSTED_FIRMWARE} https://git.gfnd.rcn-ee.org/mirror/trusted-firmware-a.git --depth=10
 	else
+		echo "git clone -b ${TRUSTED_FIRMWARE} https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git"
 		git clone -b ${TRUSTED_FIRMWARE} https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git --depth=10
 	fi
 fi
@@ -39,8 +43,10 @@ fi
 #rm -rf ./optee_os/ || true
 if [ ! -d ./optee_os/ ] ; then
 	if [ -f .gitlab-runner ] ; then
+		echo "git clone -b ${OPTEE} https://git.gfnd.rcn-ee.org/mirror/optee_os.git"
 		git clone -b ${OPTEE} https://git.gfnd.rcn-ee.org/mirror/optee_os.git --depth=10
 	else
+		echo "git clone -b ${OPTEE} https://github.com/OP-TEE/optee_os.git"
 		git clone -b ${OPTEE} https://github.com/OP-TEE/optee_os.git --depth=10
 	fi
 fi
@@ -48,7 +54,17 @@ fi
 if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
-git clone -b ${UBOOT} https://github.com/beagleboard/u-boot
+#echo "git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git"
+#git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git
+
+echo "git clone https://git.gfnd.rcn-ee.org/mirror/u-boot.git"
+git clone https://git.gfnd.rcn-ee.org/mirror/u-boot.git
+
+cd ./u-boot/
+git bisect start
+git bisect good 3f772959501c99fbe5aa0b22a36efe3478d1ae1c
+git bisect bad 123f6f75dfcb5f88d821e4eb91ddedfb7718d601
+cd ${DIR}/
 
 mkdir -p ${DIR}/public/
 
