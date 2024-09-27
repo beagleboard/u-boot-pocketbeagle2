@@ -14,27 +14,35 @@ DIR=$PWD
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
-	git clone -b 10.00.04 https://github.com/beagleboard/ti-linux-firmware.git --depth=10
-	#git -c http.sslVerify=false clone -b 10.00.04 https://git.gfnd.rcn-ee.org/TexasInstruments/ti-linux-firmware.git --depth=10
+	if [ -f .gitlab-runner ] ; then
+		git clone -b 10.00.04 https://git.gfnd.rcn-ee.org/TexasInstruments/ti-linux-firmware.git --depth=10
+	else
+		git clone -b 10.00.04 https://github.com/beagleboard/ti-linux-firmware.git --depth=10
+	fi
 fi
 
 #rm -rf ./trusted-firmware-a/ || true
 if [ ! -d ./trusted-firmware-a/ ] ; then
-	git clone -b v2.11.0 https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git --depth=10
-	#git -c http.sslVerify=false clone -b v2.11.0 https://git.gfnd.rcn-ee.org/mirror/trusted-firmware-a.git --depth=10
+	if [ -f .gitlab-runner ] ; then
+		git clone -b v2.11.0 https://git.gfnd.rcn-ee.org/mirror/trusted-firmware-a.git --depth=10
+	else
+		git clone -b v2.11.0 https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git --depth=10
+	fi
 fi
 
 #rm -rf ./optee_os/ || true
 if [ ! -d ./optee_os/ ] ; then
-	git clone -b 4.2.0 https://github.com/OP-TEE/optee_os.git --depth=10
-	#git -c http.sslVerify=false clone -b 4.2.0 https://git.gfnd.rcn-ee.org/mirror/optee_os.git --depth=10
+	if [ -f .gitlab-runner ] ; then
+		git clone -b 4.2.0 https://git.gfnd.rcn-ee.org/mirror/optee_os.git --depth=10
+	else
+		git clone -b 4.2.0 https://github.com/OP-TEE/optee_os.git --depth=10
+	fi
 fi
 
 if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
 git clone -b v2024.07 https://github.com/beagleboard/u-boot
-
 
 mkdir -p ${DIR}/public/
 
