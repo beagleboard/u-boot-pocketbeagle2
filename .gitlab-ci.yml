@@ -25,7 +25,7 @@ pages:
     - git config --global advice.detachedHead false
     - mkdir -p /root/.cache/ccache/ || true
     - tar --use-compress-program=lz4 -xf ccache.tar.lz4 -C / || true
-    - ccache -M 2G
+    - ccache -M 1G
     - ccache -z
     - ./build_uboot.sh
     - ccache -sv
