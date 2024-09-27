@@ -27,7 +27,7 @@ pages:
     - tar --use-compress-program=lz4 -xf ccache.tar.lz4 -C / || true
     - ccache -M 1G
     - ccache -z
-    - ./build_uboot.sh
+    - ./build_u-boot.sh
     - ccache -sv
     - tar --use-compress-program=lz4 -cf ccache.tar.lz4 /root/.cache/ccache/
     - du -sh ccache.tar.lz4
