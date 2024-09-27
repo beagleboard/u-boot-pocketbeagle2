@@ -15,8 +15,7 @@ DIR=$PWD
 TI_FIRMWARE="10.01.01"
 TRUSTED_FIRMWARE="v2.11.0"
 OPTEE="4.3.0"
-#UBOOT="v2024.07"
-UBOOT="v2024.10-rc1"
+UBOOT="v2024.10-rc5-Beagle"
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
@@ -54,25 +53,25 @@ fi
 if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
-#echo "git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git"
-#git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git
+echo "git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git"
+git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git
 
-echo "git clone https://git.gfnd.rcn-ee.org/mirror/u-boot.git"
-git clone https://git.gfnd.rcn-ee.org/mirror/u-boot.git
+#echo "git clone https://git.gfnd.rcn-ee.org/mirror/u-boot.git"
+#git clone https://git.gfnd.rcn-ee.org/mirror/u-boot.git
 
-echo "*************************************************"
-cd ./u-boot/
-git bisect start
-git bisect good 3f772959501c99fbe5aa0b22a36efe3478d1ae1c
-git bisect bad 123f6f75dfcb5f88d821e4eb91ddedfb7718d601
-git bisect bad 005105b11cefe694dcd40572639973fbb9b31646
-git bisect bad d8c213c9c7f827a9de0096bb4e5247c9a07bb248
-git bisect good bf3d5baa868a658d4625aaf177096751b8597891
-git bisect good 99ebe211690528cd988bb57e90b9d6a7922ebd46
-git bisect bad 0beb6f68ba2cb5e8eb4672c37ede21d17b7090e5
-git bisect good 0786dd573d0793417852e009dee3148ebdd163f3
-cd ${DIR}/
-echo "*************************************************"
+#echo "*************************************************"
+#cd ./u-boot/
+#git bisect start
+#git bisect good 3f772959501c99fbe5aa0b22a36efe3478d1ae1c
+#git bisect bad 123f6f75dfcb5f88d821e4eb91ddedfb7718d601
+#git bisect bad 005105b11cefe694dcd40572639973fbb9b31646
+#git bisect bad d8c213c9c7f827a9de0096bb4e5247c9a07bb248
+#git bisect good bf3d5baa868a658d4625aaf177096751b8597891
+#git bisect good 99ebe211690528cd988bb57e90b9d6a7922ebd46
+#git bisect bad 0beb6f68ba2cb5e8eb4672c37ede21d17b7090e5
+#git bisect good 0786dd573d0793417852e009dee3148ebdd163f3
+#cd ${DIR}/
+#echo "*************************************************"
 
 mkdir -p ${DIR}/public/
 
