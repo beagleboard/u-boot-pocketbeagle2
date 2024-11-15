@@ -2,7 +2,7 @@
 
 #apt-get install -y -q bc bison device-tree-compiler flex gcc-arm-linux-gnueabihf libssl-dev python3-cryptography python3-dev python3-jsonschema python3-pycryptodome python3-pyelftools python3-setuptools python3-yaml swig yamllint
 
-#wget https://beagleboard.beagleboard.io/u-boot-beagleplay/get_n_install.sh ; chmod +x get_n_install.sh ; sudo ./get_n_install.sh
+#wget https://pocketbeagle.beagleboard.io/u-boot-pocketbeagle2/get_n_install.sh ; chmod +x get_n_install.sh ; sudo ./get_n_install.sh
 
 CC32=arm-linux-gnueabihf-
 CC64=aarch64-linux-gnu-
@@ -12,10 +12,13 @@ ${CC64}gcc --version
 
 DIR=$PWD
 
-TI_FIRMWARE="10.01.07"
-TRUSTED_FIRMWARE="v2.11.0"
-OPTEE="4.4.0"
-UBOOT="v2024.10-Beagle"
+#TI_FIRMWARE="10.01.07"
+TI_FIRMWARE="08.06.00.007"
+#TRUSTED_FIRMWARE="v2.11.0"
+TRUSTED_FIRMWARE="v2.9.0"
+#OPTEE="4.4.0"
+OPTEE="3.22.0"
+UBOOT="pb-ti-u-boot-2021.01"
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
@@ -53,8 +56,8 @@ fi
 if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
-echo "git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git"
-git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git
+echo "git clone -b ${UBOOT} https://openbeagle.org/pocketbeagle/u-boot.git"
+git clone -b ${UBOOT} https://openbeagle.org/pocketbeagle/u-boot.git
 
 #echo "git clone https://git.gfnd.rcn-ee.org/mirror/u-boot.git"
 #git clone https://git.gfnd.rcn-ee.org/mirror/u-boot.git
@@ -82,8 +85,8 @@ SIGNED=_unsigned
 TFA_BOARD=lite
 OPTEE_PLATFORM=k3-am62x
 OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
-UBOOT_CFG_CORTEXR="am62x_beagleplay_r5_defconfig"
-UBOOT_CFG_CORTEXA="am62x_beagleplay_a53_defconfig"
+UBOOT_CFG_CORTEXR="am62x_evm_r5_defconfig"
+UBOOT_CFG_CORTEXA="am62x_evm_a53_defconfig"
 
 echo "make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
 make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
