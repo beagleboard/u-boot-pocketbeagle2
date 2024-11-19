@@ -17,9 +17,9 @@ if [ -f ./u-boot.img ] ; then
 	rm -rf ./u-boot.img || true
 fi
 
-wget https://beagleboard.beagleboard.io/u-boot-beagleplay/tiboot3.bin
-wget https://beagleboard.beagleboard.io/u-boot-beagleplay/tispl.bin
-wget https://beagleboard.beagleboard.io/u-boot-beagleplay/u-boot.img
+wget https://pocketbeagle.beagleboard.io/u-boot-pocketbeagle2/tiboot3.bin
+wget https://pocketbeagle.beagleboard.io/u-boot-pocketbeagle2/tispl.bin
+wget https://pocketbeagle.beagleboard.io/u-boot-pocketbeagle2/u-boot.img
 
 if [ -d /boot/firmware/ ] ; then
 	cp -v ./tiboot3.bin /boot/firmware/
