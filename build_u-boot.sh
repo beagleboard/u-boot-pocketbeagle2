@@ -56,8 +56,8 @@ if [ -d ./u-boot/ ] ; then
 fi
 #echo "git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git"
 #git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git
-echo "git clone -b ${UBOOT} https://openbeagle.org/RobertCNelson/u-boot-pocketbeagle2-hacks.git --depth=10"
-git clone -b ${UBOOT} https://openbeagle.org/RobertCNelson/u-boot-pocketbeagle2-hacks.git --depth=10
+echo "git clone -b ${UBOOT} https://openbeagle.org/RobertCNelson/u-boot-pocketbeagle2-hacks.git --depth=10 ./u-boot/"
+git clone -b ${UBOOT} https://openbeagle.org/RobertCNelson/u-boot-pocketbeagle2-hacks.git --depth=10 ./u-boot/
 
 mkdir -p ${DIR}/public/
 
