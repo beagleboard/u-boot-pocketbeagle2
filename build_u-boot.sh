@@ -15,7 +15,8 @@ DIR=$PWD
 TI_FIRMWARE="10.01.08"
 TRUSTED_FIRMWARE="v2.12-rc0"
 OPTEE="4.4.0"
-UBOOT="v2025.01-rc2"
+#UBOOT="v2025.01-rc2"
+UBOOT="v2025.01-rc2-pocketbeagle2-hacks"
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
@@ -53,8 +54,10 @@ fi
 if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
-echo "git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git"
-git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git
+#echo "git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git"
+#git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git
+echo "git clone -b ${UBOOT} https://openbeagle.org/RobertCNelson/u-boot-pocketbeagle2-hacks.git --depth=10"
+git clone -b ${UBOOT} https://openbeagle.org/RobertCNelson/u-boot-pocketbeagle2-hacks.git --depth=10
 
 mkdir -p ${DIR}/public/
 
@@ -65,8 +68,8 @@ SIGNED=
 TFA_BOARD=lite
 OPTEE_PLATFORM=k3-am62x
 OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
-UBOOT_CFG_CORTEXR="am62x_evm_r5_defconfig"
-UBOOT_CFG_CORTEXA="am62x_evm_a53_defconfig"
+UBOOT_CFG_CORTEXR="am62x_pocketbeagle2_r5_defconfig"
+UBOOT_CFG_CORTEXA="am62x_pocketbeagle2_r53_defconfig"
 
 echo "make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
 make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
