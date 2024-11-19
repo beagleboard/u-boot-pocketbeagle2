@@ -12,13 +12,10 @@ ${CC64}gcc --version
 
 DIR=$PWD
 
-#TI_FIRMWARE="10.01.07"
-TI_FIRMWARE="08.06.00.007"
-#TRUSTED_FIRMWARE="v2.11.0"
-TRUSTED_FIRMWARE="v2.9.0"
-#OPTEE="4.4.0"
-OPTEE="3.22.0"
-UBOOT="pb-ti-u-boot-2021.01"
+TI_FIRMWARE="10.01.07"
+TRUSTED_FIRMWARE="v2.11.0"
+OPTEE="4.4.0"
+UBOOT="v2024.10-Beagle"
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
@@ -56,8 +53,8 @@ fi
 if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
-echo "git clone -b ${UBOOT} https://openbeagle.org/pocketbeagle/u-boot.git"
-git clone -b ${UBOOT} https://openbeagle.org/pocketbeagle/u-boot.git
+echo "git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git"
+git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git
 
 #echo "git clone https://git.gfnd.rcn-ee.org/mirror/u-boot.git"
 #git clone https://git.gfnd.rcn-ee.org/mirror/u-boot.git
@@ -78,10 +75,10 @@ git clone -b ${UBOOT} https://openbeagle.org/pocketbeagle/u-boot.git
 
 mkdir -p ${DIR}/public/
 
-#beagleplay
+#pocketbeagle2
 SOC_NAME=am62x
-SECURITY_TYPE=gp
-SIGNED=_unsigned
+SECURITY_TYPE=hs-fs
+SIGNED=
 TFA_BOARD=lite
 OPTEE_PLATFORM=k3-am62x
 OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
