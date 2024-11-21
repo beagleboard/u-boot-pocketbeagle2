@@ -129,6 +129,7 @@ if [ -f ${DIR}/public/bl31.bin ] ; then
 		else
 			cp -v ${DIR}/CORTEXA/tispl.bin${SIGNED} ${DIR}/public/tispl.bin || true
 			cp -v ${DIR}/CORTEXA/u-boot.img${SIGNED} ${DIR}/public/u-boot.img || true
+			cp -v ${DIR}/CORTEXA/dts/upstream/src/arm64/ti/k3-am625-pocketbeagle2.dtb ${DIR}/public/k3-am625-pocketbeagle2.dtb || true
 		fi
 	else
 		echo "Missing ${DIR}/public/tee-pager_v2.bin"
