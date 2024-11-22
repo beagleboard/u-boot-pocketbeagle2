@@ -59,7 +59,7 @@ fi
 
 global="https://openbeagle.org/RobertCNelson/u-boot-pocketbeagle2-hacks.git"
 local="https://gitlab.gfnd.rcn-ee.org/beagleboard/u-boot-pocketbeagle2.git"
-mirror="${global}"
+mirror="${local}"
 
 echo "git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/"
 git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/
