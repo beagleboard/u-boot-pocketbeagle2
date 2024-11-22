@@ -16,7 +16,7 @@ TI_FIRMWARE="10.01.08"
 TRUSTED_FIRMWARE="v2.12-rc0"
 OPTEE="4.4.0"
 #UBOOT="v2025.01-rc2"
-UBOOT="v2025.01-rc2-pocketbeagle2-hacks"
+UBOOT="v2025.01-rc2-pocketbeagle2-hacks-2"
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
@@ -56,8 +56,13 @@ if [ -d ./u-boot/ ] ; then
 fi
 #echo "git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git"
 #git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git ./u-boot/
-echo "git clone -b ${UBOOT} https://gitlab.gfnd.rcn-ee.org/beagleboard/u-boot-pocketbeagle2.git --depth=10 ./u-boot/"
-git clone -b ${UBOOT} https://gitlab.gfnd.rcn-ee.org/beagleboard/u-boot-pocketbeagle2.git --depth=10 ./u-boot/
+
+global="https://openbeagle.org/RobertCNelson/u-boot-pocketbeagle2-hacks.git"
+local="https://gitlab.gfnd.rcn-ee.org/beagleboard/u-boot-pocketbeagle2.git"
+mirror="${global}"
+
+echo "git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/"
+git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/
 
 mkdir -p ${DIR}/public/
 
