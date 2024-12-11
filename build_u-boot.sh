@@ -16,7 +16,7 @@ TI_FIRMWARE="10.01.10"
 TRUSTED_FIRMWARE="v2.12.0"
 OPTEE="4.4.0"
 #UBOOT="v2025.01-rc2"
-UBOOT="v2025.01-rc3-pocketbeagle2"
+UBOOT="v2025.01-rc4-pocketbeagle2"
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
