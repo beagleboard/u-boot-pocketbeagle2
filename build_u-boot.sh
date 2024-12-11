@@ -12,7 +12,7 @@ ${CC64}gcc --version
 
 DIR=$PWD
 
-TI_FIRMWARE="10.01.09"
+TI_FIRMWARE="10.01.10"
 TRUSTED_FIRMWARE="v2.12.0"
 OPTEE="4.4.0"
 #UBOOT="v2025.01-rc2"
@@ -73,8 +73,8 @@ SIGNED=
 TFA_BOARD=lite
 OPTEE_PLATFORM=k3-am62x
 OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
-UBOOT_CFG_CORTEXR="am62x_pocketbeagle2_r5_defconfig"
-UBOOT_CFG_CORTEXA="am62x_pocketbeagle2_a53_defconfig"
+UBOOT_CFG_CORTEXR="am6232_pocketbeagle2_r5_defconfig"
+UBOOT_CFG_CORTEXA="am6232_pocketbeagle2_a53_defconfig"
 
 echo "make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
 make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
@@ -129,17 +129,16 @@ if [ -f ${DIR}/public/bl31.bin ] ; then
 
 		if [ ! -f ${DIR}/CORTEXA/tispl.bin${SIGNED} ] ; then
 			echo "Failure in u-boot CORTEXA build of [$UBOOT_CFG_CORTEXA]"
-			if [ -f ${DIR}/CORTEXA/dts/upstream/src/arm64/ti/.k3-am625-pocketbeagle2.dtb.pre.tmp ] ; then
-				echo ".k3-am625-pocketbeagle2.dtb.pre.tmp"
-				cat ${DIR}/CORTEXA/dts/upstream/src/arm64/ti/.k3-am625-pocketbeagle2.dtb.pre.tmp
-				echo ".k3-am625-pocketbeagle2.dtb.pre.tmp"
+			if [ -f ${DIR}/CORTEXA/dts/upstream/src/arm64/ti/.k3-am6232-pocketbeagle2.dtb.pre.tmp ] ; then
+				echo ".k3-am6232-pocketbeagle2.dtb.pre.tmp"
+				cat ${DIR}/CORTEXA/dts/upstream/src/arm64/ti/.k3-am6232-pocketbeagle2.dtb.pre.tmp
+				echo ".k3-am6232-pocketbeagle2.dtb.pre.tmp"
 			fi
 			ls -lha ${DIR}/CORTEXA/
 			exit 2
 		else
 			cp -v ${DIR}/CORTEXA/tispl.bin${SIGNED} ${DIR}/public/tispl.bin || true
 			cp -v ${DIR}/CORTEXA/u-boot.img${SIGNED} ${DIR}/public/u-boot.img || true
-			cp -v ${DIR}/CORTEXA/dts/upstream/src/arm64/ti/k3-am625-pocketbeagle2.dtb ${DIR}/public/k3-am625-pocketbeagle2.dtb || true
 		fi
 	else
 		echo "Missing ${DIR}/public/tee-pager_v2.bin"
