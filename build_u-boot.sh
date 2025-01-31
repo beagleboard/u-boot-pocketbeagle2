@@ -54,11 +54,9 @@ fi
 if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
-#echo "git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git"
-#git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git ./u-boot/
 
-global="https://openbeagle.org/beagleboard/u-boot.git"
-local="https://gitlab.gfnd.rcn-ee.org/beagleboard/u-boot-pocketbeagle2.git"
+global="https://github.com/beagleboard/u-boot.git"
+#local="https://gitlab.gfnd.rcn-ee.org/beagleboard/u-boot-pocketbeagle2.git"
 mirror="${global}"
 
 echo "git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/"
