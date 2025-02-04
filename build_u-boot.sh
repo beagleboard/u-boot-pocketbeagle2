@@ -128,11 +128,6 @@ if [ -f ${DIR}/public/bl31.bin ] ; then
 
 		if [ ! -f ${DIR}/CORTEXA/tispl.bin${SIGNED} ] ; then
 			echo "Failure in u-boot CORTEXA build of [$UBOOT_CFG_CORTEXA]"
-			if [ -f ${DIR}/CORTEXA/dts/upstream/src/arm64/ti/.k3-am6232-pocketbeagle2.dtb.pre.tmp ] ; then
-				echo ".k3-am6232-pocketbeagle2.dtb.pre.tmp"
-				cat ${DIR}/CORTEXA/dts/upstream/src/arm64/ti/.k3-am6232-pocketbeagle2.dtb.pre.tmp
-				echo ".k3-am6232-pocketbeagle2.dtb.pre.tmp"
-			fi
 			ls -lha ${DIR}/CORTEXA/
 			exit 2
 		else
