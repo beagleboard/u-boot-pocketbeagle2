@@ -59,8 +59,26 @@ global="https://github.com/beagleboard/u-boot.git"
 #local="https://gitlab.gfnd.rcn-ee.org/beagleboard/u-boot-pocketbeagle2.git"
 mirror="${global}"
 
-echo "git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/"
-git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/
+#echo "git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/"
+#git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/
+
+echo "git clone -b ${UBOOT} ${mirror} ./u-boot/"
+git clone -b ${UBOOT} ${mirror} ./u-boot/
+
+echo "*************************************************"
+cd ./u-boot/
+git bisect start
+# good: [6d41f0a39d6423c8e57e92ebbe9f8c0333a63f72] Prepare v2025.01
+git bisect good 6d41f0a39d6423c8e57e92ebbe9f8c0333a63f72
+# bad: [636fcc96c3d7e2b00c843e6da78ed3e9e3bdf4de] Prepare v2025.04-rc2
+git bisect bad 636fcc96c3d7e2b00c843e6da78ed3e9e3bdf4de
+
+git am ../patches/0001-add-k3-am6232-pocketbeagle2.patch
+git am ../patches/0002-PocketBeagle-2-drop-CONFIG_TI_AM65_CPSW_NUSS.patch
+
+cd ${DIR}/
+echo "*************************************************"
+
 
 mkdir -p ${DIR}/public/
 
