@@ -87,11 +87,11 @@ git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/
 #cd ${DIR}/
 #echo "*************************************************"
 
-echo "*************************************************"
-cd ./u-boot/
-git am ../patches/0004-PocketBeagle-2-test-r5-main_uart6.patch
-cd ${DIR}/
-echo "*************************************************"
+#echo "*************************************************"
+#cd ./u-boot/
+#git am ../patches/0004-PocketBeagle-2-test-r5-main_uart6.patch
+#cd ${DIR}/
+#echo "*************************************************"
 
 mkdir -p ${DIR}/public/
 
