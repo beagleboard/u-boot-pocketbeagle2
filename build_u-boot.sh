@@ -73,6 +73,7 @@ git bisect good 6d41f0a39d6423c8e57e92ebbe9f8c0333a63f72
 # bad: [636fcc96c3d7e2b00c843e6da78ed3e9e3bdf4de] Prepare v2025.04-rc2
 git bisect bad 636fcc96c3d7e2b00c843e6da78ed3e9e3bdf4de
 git bisect good 1c2ffcd5e622031fa1c05335d0db839de14bf0e9
+git bisect good 8707ea0360046522d0784135b6c9a7c564f9515c
 echo "*************************************************"
 git bisect log
 echo "*************************************************"
