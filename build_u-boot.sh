@@ -59,34 +59,33 @@ global="https://github.com/beagleboard/u-boot.git"
 #local="https://gitlab.gfnd.rcn-ee.org/beagleboard/u-boot-pocketbeagle2.git"
 mirror="${global}"
 
-#echo "git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/"
-#git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/
+echo "git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/"
+git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/
 
-echo "git clone -b ${UBOOT} ${mirror} ./u-boot/"
-git clone -b ${UBOOT} ${mirror} ./u-boot/
+#echo "git clone -b ${UBOOT} ${mirror} ./u-boot/"
+#git clone -b ${UBOOT} ${mirror} ./u-boot/
 
-echo "*************************************************"
-cd ./u-boot/
-git bisect start
-# good: [6d41f0a39d6423c8e57e92ebbe9f8c0333a63f72] Prepare v2025.01
-git bisect good 6d41f0a39d6423c8e57e92ebbe9f8c0333a63f72
-# bad: [636fcc96c3d7e2b00c843e6da78ed3e9e3bdf4de] Prepare v2025.04-rc2
-git bisect bad 636fcc96c3d7e2b00c843e6da78ed3e9e3bdf4de
-git bisect good 1c2ffcd5e622031fa1c05335d0db839de14bf0e9
-git bisect good 8707ea0360046522d0784135b6c9a7c564f9515c
-git bisect good 5a287cf07aed6a60e25af903ea24bc0030d493b1
-git bisect good bfaed6969c119673c3087ffd778b8e3e324c3202
-git bisect good c2e00482d0058908014014b1c703e0eaaf1490d7
-git bisect bad a081512cbde71b70e32f2cfb36291e03726fec3f
-echo "*************************************************"
-git bisect log
-echo "*************************************************"
-git am ../patches/0001-add-k3-am6232-pocketbeagle2.patch
-git am ../patches/0002-PocketBeagle-2-drop-CONFIG_TI_AM65_CPSW_NUSS.patch
-git am ../patches/0003-PocketBeagle-2-try-label.patch
-cd ${DIR}/
-echo "*************************************************"
-
+#echo "*************************************************"
+#cd ./u-boot/
+#git bisect start
+## good: [6d41f0a39d6423c8e57e92ebbe9f8c0333a63f72] Prepare v2025.01
+#git bisect good 6d41f0a39d6423c8e57e92ebbe9f8c0333a63f72
+## bad: [636fcc96c3d7e2b00c843e6da78ed3e9e3bdf4de] Prepare v2025.04-rc2
+#git bisect bad 636fcc96c3d7e2b00c843e6da78ed3e9e3bdf4de
+#git bisect good 1c2ffcd5e622031fa1c05335d0db839de14bf0e9
+#git bisect good 8707ea0360046522d0784135b6c9a7c564f9515c
+#git bisect good 5a287cf07aed6a60e25af903ea24bc0030d493b1
+#git bisect good bfaed6969c119673c3087ffd778b8e3e324c3202
+#git bisect good c2e00482d0058908014014b1c703e0eaaf1490d7
+#git bisect bad a081512cbde71b70e32f2cfb36291e03726fec3f
+#echo "*************************************************"
+#git bisect log
+#echo "*************************************************"
+#git am ../patches/0001-add-k3-am6232-pocketbeagle2.patch
+#git am ../patches/0002-PocketBeagle-2-drop-CONFIG_TI_AM65_CPSW_NUSS.patch
+#git am ../patches/0003-PocketBeagle-2-try-label.patch
+#cd ${DIR}/
+#echo "*************************************************"
 
 mkdir -p ${DIR}/public/
 
