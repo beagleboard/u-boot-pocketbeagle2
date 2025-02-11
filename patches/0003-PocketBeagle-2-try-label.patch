@@ -1,0 +1,48 @@
+From dd1e0e6b6d52b5cd98d37445b590874886ee7f89 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 11 Feb 2025 16:04:51 -0600
+Subject: [PATCH 3/3] PocketBeagle 2: try label
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ dts/upstream/src/arm64/ti/k3-am6232-pocketbeagle2.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/dts/upstream/src/arm64/ti/k3-am6232-pocketbeagle2.dts b/dts/upstream/src/arm64/ti/k3-am6232-pocketbeagle2.dts
+index 9f19c05a77d..e2cc16d253e 100644
+--- a/dts/upstream/src/arm64/ti/k3-am6232-pocketbeagle2.dts
++++ b/dts/upstream/src/arm64/ti/k3-am6232-pocketbeagle2.dts
+@@ -135,6 +135,7 @@
+ 
+ 		led-1 {
+ 			bootph-all;
++			label = "led-1";
+ 			gpios = <&main_gpio0 6 GPIO_ACTIVE_HIGH>;
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			linux,default-trigger = "heartbeat";
+@@ -144,6 +145,7 @@
+ 
+ 		led-2 {
+ 			bootph-all;
++			label = "led-2";
+ 			gpios = <&main_gpio0 5 GPIO_ACTIVE_HIGH>;
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK_ACTIVITY;
+@@ -152,12 +154,14 @@
+ 
+ 		led-3 {
+ 			bootph-all;
++			label = "led-3";
+ 			gpios = <&main_gpio0 4 GPIO_ACTIVE_HIGH>;
+ 			color = <LED_COLOR_ID_GREEN>;
+ 		};
+ 
+ 		led-4 {
+ 			bootph-all;
++			label = "led-4";
+ 			gpios = <&main_gpio0 3 GPIO_ACTIVE_HIGH>;
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_INDICATOR;
+-- 
+2.47.2
+

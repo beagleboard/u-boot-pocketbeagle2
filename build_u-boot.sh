@@ -83,6 +83,7 @@ git bisect log
 echo "*************************************************"
 git am ../patches/0001-add-k3-am6232-pocketbeagle2.patch
 git am ../patches/0002-PocketBeagle-2-drop-CONFIG_TI_AM65_CPSW_NUSS.patch
+git am ../patches/0003-PocketBeagle-2-try-label.patch
 cd ${DIR}/
 echo "*************************************************"
 
