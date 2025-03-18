@@ -13,7 +13,7 @@ ${CC64}gcc --version
 DIR=$PWD
 
 TI_FIRMWARE="11.00.07"
-TRUSTED_FIRMWARE="v2.12.0"
+TRUSTED_FIRMWARE="lts-v2.12.1"
 OPTEE="4.5.0"
 #UBOOT="v2025.01-pocketbeagle2"
 UBOOT="v2025.04-rc3-pocketbeagle2"
