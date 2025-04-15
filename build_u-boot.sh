@@ -12,20 +12,19 @@ ${CC64}gcc --version
 
 DIR=$PWD
 
-TI_FIRMWARE="11.00.08"
+TI_FIRMWARE="11.00.10"
 TRUSTED_FIRMWARE="lts-v2.12.1"
-OPTEE="4.5.0"
-#UBOOT="v2025.01-pocketbeagle2"
-UBOOT="v2025.04-rc5-pocketbeagle2"
+OPTEE="4.6.0-rc1"
+UBOOT="v2025.04-pocketbeagle2"
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
 	if [ -f .gitlab-runner ] ; then
 		echo "git clone -b ${TI_FIRMWARE} http://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware.git"
-		git clone -b ${TI_FIRMWARE} http://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware.git --depth=10 ./ti-linux-firmware/
+		git clone -b ${TI_FIRMWARE} http://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware.git --depth=1 ./ti-linux-firmware/
 	else
 		echo "git clone -b ${TI_FIRMWARE} https://github.com/beagleboard/ti-linux-firmware.git"
-		git clone -b ${TI_FIRMWARE} https://github.com/beagleboard/ti-linux-firmware.git --depth=10 ./ti-linux-firmware/
+		git clone -b ${TI_FIRMWARE} https://github.com/beagleboard/ti-linux-firmware.git --depth=1 ./ti-linux-firmware/
 	fi
 fi
 
@@ -33,10 +32,10 @@ fi
 if [ ! -d ./trusted-firmware-a/ ] ; then
 	if [ -f .gitlab-runner ] ; then
 		echo "git clone -b ${TRUSTED_FIRMWARE} http://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a.git"
-		git clone -b ${TRUSTED_FIRMWARE} http://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a.git --depth=10 ./trusted-firmware-a/
+		git clone -b ${TRUSTED_FIRMWARE} http://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a.git --depth=1 ./trusted-firmware-a/
 	else
 		echo "git clone -b ${TRUSTED_FIRMWARE} https://github.com/TrustedFirmware-A/trusted-firmware-a.git"
-		git clone -b ${TRUSTED_FIRMWARE} https://github.com/TrustedFirmware-A/trusted-firmware-a.git --depth=10 ./trusted-firmware-a/
+		git clone -b ${TRUSTED_FIRMWARE} https://github.com/TrustedFirmware-A/trusted-firmware-a.git --depth=1 ./trusted-firmware-a/
 	fi
 fi
 
@@ -44,10 +43,10 @@ fi
 if [ ! -d ./optee_os/ ] ; then
 	if [ -f .gitlab-runner ] ; then
 		echo "git clone -b ${OPTEE} http://forgejo.gfnd.rcn-ee.org:3000/mirror/optee_os.git"
-		git clone -b ${OPTEE} http://forgejo.gfnd.rcn-ee.org:3000/mirror/optee_os.git --depth=10 ./optee_os/
+		git clone -b ${OPTEE} http://forgejo.gfnd.rcn-ee.org:3000/mirror/optee_os.git --depth=1 ./optee_os/
 	else
 		echo "git clone -b ${OPTEE} https://github.com/OP-TEE/optee_os.git"
-		git clone -b ${OPTEE} https://github.com/OP-TEE/optee_os.git --depth=10 ./optee_os/
+		git clone -b ${OPTEE} https://github.com/OP-TEE/optee_os.git --depth=1 ./optee_os/
 	fi
 fi
 
@@ -56,42 +55,10 @@ if [ -d ./u-boot/ ] ; then
 fi
 
 global="https://github.com/beagleboard/u-boot.git"
-#local="https://gitlab.gfnd.rcn-ee.org/beagleboard/u-boot-pocketbeagle2.git"
 mirror="${global}"
 
 echo "git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/"
 git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/
-
-#echo "git clone -b ${UBOOT} ${mirror} ./u-boot/"
-#git clone -b ${UBOOT} ${mirror} ./u-boot/
-
-#echo "*************************************************"
-#cd ./u-boot/
-#git bisect start
-## good: [6d41f0a39d6423c8e57e92ebbe9f8c0333a63f72] Prepare v2025.01
-#git bisect good 6d41f0a39d6423c8e57e92ebbe9f8c0333a63f72
-## bad: [636fcc96c3d7e2b00c843e6da78ed3e9e3bdf4de] Prepare v2025.04-rc2
-#git bisect bad 636fcc96c3d7e2b00c843e6da78ed3e9e3bdf4de
-#git bisect good 1c2ffcd5e622031fa1c05335d0db839de14bf0e9
-#git bisect good 8707ea0360046522d0784135b6c9a7c564f9515c
-#git bisect good 5a287cf07aed6a60e25af903ea24bc0030d493b1
-#git bisect good bfaed6969c119673c3087ffd778b8e3e324c3202
-#git bisect good c2e00482d0058908014014b1c703e0eaaf1490d7
-#git bisect bad a081512cbde71b70e32f2cfb36291e03726fec3f
-#echo "*************************************************"
-#git bisect log
-#echo "*************************************************"
-#git am ../patches/0001-add-k3-am6232-pocketbeagle2.patch
-#git am ../patches/0002-PocketBeagle-2-drop-CONFIG_TI_AM65_CPSW_NUSS.patch
-#git am ../patches/0003-PocketBeagle-2-try-label.patch
-#cd ${DIR}/
-#echo "*************************************************"
-
-#echo "*************************************************"
-#cd ./u-boot/
-#git am ../patches/0004-PocketBeagle-2-test-r5-main_uart6.patch
-#cd ${DIR}/
-#echo "*************************************************"
 
 mkdir -p ${DIR}/public/
 
