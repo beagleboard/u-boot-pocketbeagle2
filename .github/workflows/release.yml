@@ -28,6 +28,7 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y --no-install-recommends build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf
           sudo apt-get install -y --no-install-recommends python3-cryptography python3-minimal python3-pyelftools
+          sudo apt-get install -y --no-install-recommends bc bison flex libgnutls28-dev libssl-dev python3-dev python3-jsonschema python3-setuptools python3-yaml swig uuid-dev yamllint
 
 
       - name: Build U-Boot
