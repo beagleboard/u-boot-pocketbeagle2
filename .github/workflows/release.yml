@@ -38,6 +38,8 @@ jobs:
         tag_name: build
         with:
           prerelease: true
+          name: Continuous Release
+          tag_name: continuous-release
           files: |
             public/tiboot3.bin
             public/tispl.bin
