@@ -37,7 +37,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           prerelease: true
-          name: Continuous Release
-          tag_name: continuous-release
-          files: ./public/tiboot3.bin ./public/tispl.bin ./public/u-boot.img
-
+          files: |
+            public/tiboot3.bin
+            public/tispl.bin
+            public/u-boot.img
