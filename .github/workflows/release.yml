@@ -35,6 +35,7 @@ jobs:
 
       - name: Continuous-Release
         uses: softprops/action-gh-release@v2
+        tag_name: build
         with:
           prerelease: true
           files: |
