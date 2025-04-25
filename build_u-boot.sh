@@ -10,6 +10,9 @@ CC64=aarch64-linux-gnu-
 ${CC32}gcc --version
 ${CC64}gcc --version
 
+git --version
+git config advice.detachedHead false
+
 DIR=$PWD
 
 TI_FIRMWARE="11.00.11"

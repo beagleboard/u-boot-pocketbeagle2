@@ -30,11 +30,14 @@ jobs:
           sudo apt-get install -y --no-install-recommends python3-cryptography python3-minimal python3-pyelftools
           sudo apt-get install -y --no-install-recommends bc bison flex libgnutls28-dev libssl-dev python3-dev python3-jsonschema python3-setuptools python3-yaml swig uuid-dev yamllint
 
-
       - name: Build U-Boot
         run: ./build_u-boot.sh
 
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+      - name: Continuous-Release
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: true
+          name: Continuous Release
+          tag_name: continuous-release
+          files: u-boot-pocketbeagle2/public/tiboot3.bin u-boot-pocketbeagle2/public/tispl.bin u-boot-pocketbeagle2/public/u-boot.img
+
