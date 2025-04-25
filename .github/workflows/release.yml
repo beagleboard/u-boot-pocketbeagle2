@@ -39,5 +39,5 @@ jobs:
           prerelease: true
           name: Continuous Release
           tag_name: continuous-release
-          files: u-boot-pocketbeagle2/public/tiboot3.bin u-boot-pocketbeagle2/public/tispl.bin u-boot-pocketbeagle2/public/u-boot.img
+          files: u-boot-pocketbeagle2/u-boot-pocketbeagle2/public/tiboot3.bin u-boot-pocketbeagle2/u-boot-pocketbeagle2/public/tispl.bin u-boot-pocketbeagle2/u-boot-pocketbeagle2/public/u-boot.img
 
