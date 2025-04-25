@@ -11,7 +11,6 @@ ${CC32}gcc --version
 ${CC64}gcc --version
 
 git --version
-git config advice.detachedHead false
 
 DIR=$PWD
 
