@@ -27,6 +27,8 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y --no-install-recommends build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf
+          sudo apt-get install -y --no-install-recommends python3-cryptography python3-minimal python3-pyelftools
+
 
       - name: Build U-Boot
         run: ./build_u-boot.sh
