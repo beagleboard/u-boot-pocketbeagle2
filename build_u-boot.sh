@@ -14,7 +14,7 @@ git --version
 
 DIR=$PWD
 
-TI_FIRMWARE="11.00.11"
+TI_FIRMWARE="11.00.13"
 TRUSTED_FIRMWARE="lts-v2.12.2"
 OPTEE="4.6.0"
 UBOOT="v2025.04-pocketbeagle2"
