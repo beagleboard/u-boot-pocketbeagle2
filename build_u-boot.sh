@@ -10,12 +10,10 @@ CC64=aarch64-linux-gnu-
 ${CC32}gcc --version
 ${CC64}gcc --version
 
-git --version
-
 DIR=$PWD
 
 TI_FIRMWARE="11.00.13"
-TRUSTED_FIRMWARE="lts-v2.12.2"
+TRUSTED_FIRMWARE="lts-v2.12.3"
 OPTEE="4.6.0"
 UBOOT="v2025.04-pocketbeagle2"
 
