@@ -15,7 +15,7 @@ DIR=$PWD
 TI_FIRMWARE="11.00.15"
 TRUSTED_FIRMWARE="lts-v2.12.3"
 OPTEE="4.6.0"
-UBOOT="v2025.04-pocketbeagle2"
+UBOOT="v2025.07-rc3-pocketbeagle2"
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
@@ -70,8 +70,8 @@ TFA_BOARD="lite"
 TFA_EXTRA_ARGS="K3_USART=0x6"
 OPTEE_PLATFORM="k3-am62x"
 OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y CFG_CONSOLE_UART=0x6"
-UBOOT_CFG_CORTEXR="am6232_pocketbeagle2_r5_defconfig"
-UBOOT_CFG_CORTEXA="am6232_pocketbeagle2_a53_defconfig"
+UBOOT_CFG_CORTEXR="am62x_pocketbeagle2_r5_defconfig"
+UBOOT_CFG_CORTEXA="am62x_pocketbeagle2_a53_defconfig"
 
 echo "make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
 make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
