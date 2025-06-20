@@ -33,7 +33,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends bc bison flex libgnutls28-dev libssl-dev python3-dev python3-jsonschema python3-setuptools python3-yaml swig uuid-dev yamllint
 
       - name: Set Variables UBOOT and TI_FIRMWARE
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           TAG="${GITHUB_REF##*/}"
           # Everything before the final '-'
@@ -46,10 +46,21 @@ jobs:
 
       - name: Continuous-Release
         uses: softprops/action-gh-release@v2
+        if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
         with:
           prerelease: true
           name: Continuous Release
           tag_name: continuous-release
+          files: |
+            public/tiboot3.bin
+            public/tispl.bin
+            public/u-boot.img
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          generate_release_notes: true
           files: |
             public/tiboot3.bin
             public/tispl.bin
