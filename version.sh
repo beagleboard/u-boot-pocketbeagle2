@@ -10,4 +10,4 @@ TRUSTED_FIRMWARE="lts-v2.12.4"
 OPTEE="4.6.0"
 
 #https://github.com/beagleboard/u-boot.git
-UBOOT="${UBOOT:-v2025.07-rc4-am6232-pocketbeagle2}"
+UBOOT="${UBOOT:-v2025.07-rc5-am6232-pocketbeagle2}"
