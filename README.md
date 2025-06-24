@@ -1,7 +1,7 @@
 # Test Binaries:
 
 ```
-wget https://pocketbeagle.beagleboard.io/u-boot-pocketbeagle2/get_n_install.sh ; \
+wget https://raw.githubusercontent.com/beagleboard/u-boot-pocketbeagle2/refs/heads/main/public/get_n_install.sh ; \
 chmod +x get_n_install.sh ; \
 sudo ./get_n_install.sh
 ```

@@ -2,8 +2,6 @@
 
 #apt-get install -y -q bc bison device-tree-compiler flex gcc-arm-linux-gnueabihf libssl-dev python3-cryptography python3-dev python3-jsonschema python3-pycryptodome python3-pyelftools python3-setuptools python3-yaml swig yamllint
 
-#wget https://pocketbeagle.beagleboard.io/u-boot-pocketbeagle2/get_n_install.sh ; chmod +x get_n_install.sh ; sudo ./get_n_install.sh
-
 CC32=arm-linux-gnueabihf-
 CC64=aarch64-linux-gnu-
 
@@ -12,10 +10,11 @@ ${CC64}gcc --version
 
 DIR=$PWD
 
-TI_FIRMWARE="${TI_FIRMWARE:-11.01.01}"
-TRUSTED_FIRMWARE="v2.13.0"
-OPTEE="4.6.0"
-UBOOT="${UBOOT:-v2025.07-rc4-am6232-pocketbeagle2}"
+. version.sh
+
+echo "****************************************************"
+echo [${UBOOT}:${TRUSTED_FIRMWARE}:${OPTEE}:${TI_FIRMWARE}]
+echo "****************************************************"
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
