@@ -17,9 +17,9 @@ if [ -f ./u-boot.img ] ; then
 	rm -rf ./u-boot.img || true
 fi
 
-wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/TAG/tiboot3.bin
-wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/TAG/tispl.bin
-wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/TAG/u-boot.img
+wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/v2025.07-rc5-am6232-pocketbeagle2-11.01.03/tiboot3.bin
+wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/v2025.07-rc5-am6232-pocketbeagle2-11.01.03/tispl.bin
+wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/v2025.07-rc5-am6232-pocketbeagle2-11.01.03/u-boot.img
 
 if [ -d /boot/firmware/ ] ; then
 	cp -v ./tiboot3.bin /boot/firmware/
