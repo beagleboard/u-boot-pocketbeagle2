@@ -56,8 +56,8 @@ fi
 global="https://github.com/beagleboard/u-boot.git"
 mirror="${global}"
 
-echo "git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/"
-git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/
+echo "git clone -b ${UBOOT} ${mirror} --depth=1 ./u-boot/"
+git clone -b ${UBOOT} ${mirror} --depth=1 ./u-boot/
 
 mkdir -p ${DIR}/public/
 

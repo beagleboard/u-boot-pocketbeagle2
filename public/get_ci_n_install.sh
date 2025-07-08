@@ -17,9 +17,9 @@ if [ -f ./u-boot.img ] ; then
 	rm -rf ./u-boot.img || true
 fi
 
-wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/TAG/tiboot3.bin
-wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/TAG/tispl.bin
-wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/TAG/u-boot.img
+wget https://beagle-pkgs.gitlab.io/u-boot-pocketbeagle2/tiboot3.bin
+wget https://beagle-pkgs.gitlab.io/u-boot-pocketbeagle2/tispl.bin
+wget https://beagle-pkgs.gitlab.io/u-boot-pocketbeagle2/u-boot.img
 
 sync
 
