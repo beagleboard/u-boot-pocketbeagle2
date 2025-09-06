@@ -67,15 +67,13 @@ if [ ! -d ./optee_os/ ] ; then
 	fi
 fi
 
-if [ -d ./u-boot/ ] ; then
-	rm -rf ./u-boot/
-fi
-
+#rm -rf ./u-boot/ || true
 global="https://github.com/beagleboard/u-boot.git"
 mirror="${global}"
-
-echo "git clone -b ${UBOOT} ${mirror} --depth=1 ./u-boot/"
-git clone -b ${UBOOT} ${mirror} --depth=1 ./u-boot/
+if [ ! -d ./u-boot/ ] ; then
+	echo "git clone -b ${UBOOT} ${mirror} --depth=1 ./u-boot/"
+	git clone -b ${UBOOT} ${mirror} --depth=1 ./u-boot/
+fi
 
 mkdir -p ${DIR}/public/
 
