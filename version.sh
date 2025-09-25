@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #https://github.com/beagleboard/ti-linux-firmware.git
-TI_FIRMWARE="${TI_FIRMWARE:-11.01.12}"
+TI_FIRMWARE="${TI_FIRMWARE:-11.01.14}"
 
 #https://github.com/TrustedFirmware-A/trusted-firmware-a.git
 TRUSTED_FIRMWARE="lts-v2.12.6"
