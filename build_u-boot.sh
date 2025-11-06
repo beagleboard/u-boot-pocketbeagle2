@@ -154,6 +154,7 @@ fi
 
 rm -rf ${DIR}/CORTEXR/ || true
 
+# Build Normal u-boot.img
 if [ -f ${DIR}/public/bl31.bin ] ; then
 	if [ -f ${DIR}/public/tee-pager_v2.bin ] ; then
 		echo "make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA"
@@ -169,6 +170,34 @@ if [ -f ${DIR}/public/bl31.bin ] ; then
 		else
 			cp -v ${DIR}/CORTEXA/tispl.bin${SIGNED} ${DIR}/public/tispl.bin || true
 			cp -v ${DIR}/CORTEXA/u-boot.img${SIGNED} ${DIR}/public/u-boot.img || true
+		fi
+	else
+		echo "Missing ${DIR}/public/tee-pager_v2.bin"
+		exit 2
+	fi
+else
+	echo "Missing ${DIR}/public/bl31.bin"
+	exit 2
+fi
+
+# Build u-boot with default zephyr DFU support.
+# No need to build from scratch since all we are doing is a bootcommand change.
+if [ -f ${DIR}/public/bl31.bin ] ; then
+	if [ -f ${DIR}/public/tee-pager_v2.bin ] ; then
+		echo "Add BOOTCOMMAND to autostart Zephyr DFU"
+		echo 'CONFIG_BOOTCOMMAND="setenv dfu_alt_info zephyr.bin ram 0x080200000 0x1FE00000; dfu 0 ram 0; dcache flush; icache flush; dcache off; icache off; go 0x080200000;"' >> ./CORTEXA/.config
+		make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 olddefconfig
+
+		echo "make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/${DEVICE}/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
+		make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
+
+		if [ ! -f ${DIR}/CORTEXA/tispl.bin${SIGNED} ] ; then
+			echo "Failure in u-boot CORTEXA build of [$UBOOT_CFG_CORTEXA]"
+			ls -lha ${DIR}/CORTEXA/
+			exit 2
+		else
+			# No need to copy tispl. u-boot-zephyrdfu.img is basically just normal u-boot + bootcommand.
+			cp -v ${DIR}/CORTEXA/u-boot.img${SIGNED} ${DIR}/public/u-boot-zephyrdfu.img || true
 		fi
 	else
 		echo "Missing ${DIR}/public/tee-pager_v2.bin"
