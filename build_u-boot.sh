@@ -84,6 +84,7 @@ TFA_EXTRA_ARGS="K3_USART=0x6"
 OPTEE_PLATFORM="k3-am62x"
 OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y CFG_CONSOLE_UART=0x6"
 UBOOT_CFG_CORTEXR="am62_pocketbeagle2_r5_defconfig"
+UBOOT_CFG_CORTEXR_USBDFU="${UBOOT_CFG_CORTEXR} am62x_r5_usbdfu.config"
 UBOOT_CFG_CORTEXA="am62_pocketbeagle2_a53_defconfig"
 
 echo "make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
@@ -109,6 +110,30 @@ else
 fi
 
 rm -rf ${DIR}/optee/ || true
+
+# Build tiboot3 with DFU support
+
+echo "make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR_USBDFU"
+make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR_USBDFU
+
+echo "make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
+make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/
+
+if [ ! -f ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ] ; then
+	echo "Failure in u-boot CORTEXR build of [$UBOOT_CFG_CORTEXR_USBDFU]"
+	ls -lha ${DIR}/CORTEXR/
+	exit 2
+else
+	cp -v ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ${DIR}/public/tiboot3-usbdfu.bin
+	if [ -f ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ] ; then
+		cp -v ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ${DIR}/public/sysfw-usbdfu.itb
+	fi
+fi
+
+rm -rf ${DIR}/CORTEXR/ || true
+
+
+# Build normal tiboot3
 
 echo "make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR"
 make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR
