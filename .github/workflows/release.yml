@@ -58,6 +58,7 @@ jobs:
             public/tiboot3-usbdfu.bin
             public/tispl.bin
             public/u-boot.img
+            public/u-boot-zephyrdfu.img
 
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -69,6 +70,7 @@ jobs:
             public/tiboot3-usbdfu.bin
             public/tispl.bin
             public/u-boot.img
+            public/u-boot-zephyrdfu.img
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v5
@@ -79,3 +81,4 @@ jobs:
             public/tiboot3-usbdfu.bin
             public/tispl.bin
             public/u-boot.img
+            public/u-boot-zephyrdfu.img
