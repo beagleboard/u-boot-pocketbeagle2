@@ -53,6 +53,7 @@ jobs:
           tag_name: continuous-release
           files: |
             public/tiboot3.bin
+            public/tiboot3-usbdfu.bin
             public/tispl.bin
             public/u-boot.img
 
@@ -63,5 +64,6 @@ jobs:
           generate_release_notes: true
           files: |
             public/tiboot3.bin
+            public/tiboot3-usbdfu.bin
             public/tispl.bin
             public/u-boot.img
