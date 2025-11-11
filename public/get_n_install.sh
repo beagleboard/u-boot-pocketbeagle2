@@ -17,9 +17,9 @@ if [ -f ./u-boot.img ] ; then
 	rm -rf ./u-boot.img || true
 fi
 
-wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/v2025.10-am62-pocketbeagle2-11.02.04-r2/tiboot3.bin
-wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/v2025.10-am62-pocketbeagle2-11.02.04-r2/tispl.bin
-wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/v2025.10-am62-pocketbeagle2-11.02.04-r2/u-boot.img
+wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/v2025.10-am62-pocketbeagle2-11.02.04-r3/tiboot3.bin
+wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/v2025.10-am62-pocketbeagle2-11.02.04-r3/tispl.bin
+wget https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download/v2025.10-am62-pocketbeagle2-11.02.04-r3/u-boot.img
 
 sync
 
