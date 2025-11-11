@@ -16,4 +16,4 @@ UBOOT="${UBOOT:-v2025.10-am62-pocketbeagle2}"
 #UBOOT="${UBOOT:-v2025.10-am62-pocketbeagle2-1GB}"
 
 #Used for Rebuilds
-REBUILD="${REBUILD:-r1}"
+REBUILD="${REBUILD:-r2}"
