@@ -31,7 +31,7 @@ DIR=$PWD
 . version.sh
 
 echo "****************************************************"
-echo [${UBOOT}:${TFA}:${OPTEE}:${TI_FIRMWARE}:${REBUILD}]
+echo [${UBOOT}:${TFA}:${OPTEE}:${TI_FIRMWARE}]
 echo "****************************************************"
 
 #rm -rf ./ti-linux-firmware/ || true
