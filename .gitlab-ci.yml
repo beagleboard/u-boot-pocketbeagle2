@@ -32,7 +32,7 @@ build-debian-14-arm64:
     - ./build_u-boot.sh
     - ccache -sv
     - df -h /dev/shm
-    - tar --use-compress-program='zstd -9' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
+    - tar --use-compress-program='zstd -6' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
 
 build-debian-13-arm64:
   image: robertcnelson/beagle-devscripts-kernel-debian-13-arm64:latest
@@ -54,7 +54,7 @@ build-debian-13-arm64:
     - ./build_u-boot.sh
     - ccache -sv
     - df -h /dev/shm
-    - tar --use-compress-program='zstd -9' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
+    - tar --use-compress-program='zstd -6' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
 
 pages:
   image: robertcnelson/beagle-devscripts-kernel-debian-12-arm64:latest
@@ -76,7 +76,7 @@ pages:
     - ./build_u-boot.sh
     - ccache -sv
     - df -h /dev/shm
-    - tar --use-compress-program='zstd -9' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
+    - tar --use-compress-program='zstd -6' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
     - apindex public
   artifacts:
     when: on_success
