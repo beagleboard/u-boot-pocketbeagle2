@@ -12,5 +12,4 @@ OPTEE="${OPTEE:-4.9.0}"
 
 #https://github.com/beagleboard/u-boot.git
 UBOOT_GIT="${UBOOT_GIT:-https://github.com/beagleboard/u-boot.git}"
-UBOOT="${UBOOT:-v2025.10-am62-pocketbeagle2}"
-#UBOOT="${UBOOT:-v2025.10-am62-pocketbeagle2-1GB}"
+UBOOT="${UBOOT:-v2026.01-am62-pocketbeagle2}"
