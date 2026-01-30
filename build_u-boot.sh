@@ -148,6 +148,7 @@ if [ ! -f ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ] ; then
 	exit 2
 else
 	cp -v ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ${DIR}/public/tiboot3.bin
+	cp -v ${DIR}/CORTEXR/.config ${DIR}/public/r5_defconfig
 	if [ -f ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ] ; then
 		cp -v ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ${DIR}/public/sysfw.itb
 	fi
@@ -172,6 +173,7 @@ if [ -f ${DIR}/public/bl31.bin ] ; then
 		else
 			cp -v ${DIR}/CORTEXA/tispl.bin${SIGNED} ${DIR}/public/tispl.bin || true
 			cp -v ${DIR}/CORTEXA/u-boot.img${SIGNED} ${DIR}/public/u-boot.img || true
+			cp -v ${DIR}/CORTEXA/.config ${DIR}/public/a53_defconfig || true
 		fi
 	else
 		echo "Missing ${DIR}/public/tee-pager_v2.bin"
