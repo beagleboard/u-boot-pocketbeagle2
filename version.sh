@@ -1,5 +1,7 @@
 #!/bin/bash
 
+BUILD_REPO="u-boot-pocketbeagle2"
+
 #https://github.com/TexasInstruments/ti-linux-firmware.git
 TI_FIRMWARE="${TI_FIRMWARE:-11.02.11}"
 
