@@ -1,222 +1,404 @@
 #!/bin/bash
 
-#apt-get install -y -q bc bison device-tree-compiler flex gcc-arm-linux-gnueabihf libssl-dev python3-cryptography python3-dev python3-jsonschema python3-pycryptodome python3-pyelftools python3-setuptools python3-yaml swig yamllint
+# Exit on error, undefined variables, and pipe failures
+set -euo pipefail
+
+# --- Helper Functions ---
 
 check_command() {
-    command -v -- "$1" >/dev/null 2>&1
+	command -v -- "$1" >/dev/null 2>&1
 }
 
-# Check for debian compiler
+get_git_url() {
+	local mirror_path="$1"
+	local github_url="$2"
+	if [ -f .gitlab-runner ]; then
+		echo "https://forgejo.gfnd.rcn-ee.org:3000${mirror_path}"
+	else
+		echo "${github_url}"
+	fi
+}
+
+report_and_compare() {
+	local file_path="$1"
+	local label="$2"
+	local size_file=".last_build_sizes.txt"
+	local summary_file=".build_summary.tmp"
+	local new_sizes_file=".new_sizes.txt"
+
+	if [ -f "$file_path" ]; then
+		local current_bytes
+		current_bytes=$(stat -c%s "$file_path" 2>/dev/null || echo 0)
+		[ "$current_bytes" -eq 0 ] && return
+
+		local current_kb=$((current_bytes / 1024))
+		local diff_kb=0
+		local diff_bytes=0
+		local status="NEW"
+
+		if [ -f "$size_file" ]; then
+			local prev_bytes
+			prev_bytes=$(grep "^${label}:" "$size_file" | cut -d':' -f2 || echo "$current_bytes")
+
+			diff_bytes=$((current_bytes - prev_bytes))
+			diff_kb=$((diff_bytes / 1024))
+
+			if [ "$diff_bytes" -gt 0 ]; then status="INCREASED";
+			elif [ "$diff_bytes" -lt 0 ]; then status="DECREASED";
+			else status="UNCHANGED"; fi
+		fi
+
+		echo "[$status] $label: ${current_kb}KB"
+		echo "${label}|${current_bytes}|${diff_bytes}|${diff_kb}|${status}" >> "$summary_file"
+		echo "${label}:${current_bytes}" >> "$new_sizes_file"
+	fi
+}
+
+log_sep() {
+	echo "************************************************************************************"
+}
+
+# --- Compiler Detection ---
+
 if check_command arm-linux-gnueabihf-gcc; then
-	CC32=arm-linux-gnueabihf-
-# Check for fedora compiler
+	CC32="arm-linux-gnueabihf-"
 elif check_command arm-linux-gnu-gcc; then
-	CC32=arm-linux-gnu-
+	CC32="arm-linux-gnu-"
 else
-	echo "CC32 not found"
+	echo "Error: CC32 (arm-linux-gnueabihf-gcc or arm-linux-gnu-gcc) not found"
 	exit 1
 fi
 
-CC64=aarch64-linux-gnu-
-if ! check_command ${CC64}gcc; then
-	echo "CC64 not found"
+CC64="aarch64-linux-gnu-"
+if ! check_command "${CC64}gcc"; then
+	echo "Error: CC64 (${CC64}gcc) not found"
 	exit 1
 fi
+
+# --- Initialization ---
 
 ${CC32}gcc --version
 ${CC64}gcc --version
 
-DIR=$PWD
-
+DIR="$PWD"
+JOBS=$(nproc 2>/dev/null || echo 4)
 . version.sh
 
-echo "****************************************************"
-echo [${UBOOT}:${TFA}:${OPTEE}:${TI_FIRMWARE}]
-echo "****************************************************"
-
-#rm -rf ./ti-linux-firmware/ || true
-if [ ! -d ./ti-linux-firmware/ ] ; then
-	if [ -f .gitlab-runner ] ; then
-		echo "git clone -b ${TI_FIRMWARE} https://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware.git"
-		git clone -b ${TI_FIRMWARE} https://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware.git --depth=1 ./ti-linux-firmware/
-	else
-		echo "git clone -b ${TI_FIRMWARE} https://github.com/TexasInstruments/ti-linux-firmware.git"
-		git clone -b ${TI_FIRMWARE} https://github.com/TexasInstruments/ti-linux-firmware.git --depth=1 ./ti-linux-firmware/
-	fi
+if [ -f ".last_build_sizes.txt" ]; then
+	echo "Cache restored: Found previous build sizes."
+else
+	echo "No cache found: This is likely a fresh build or cache was cleared."
+	touch .last_build_sizes.txt
 fi
 
-#rm -rf ./trusted-firmware-a/ || true
-if [ ! -d ./trusted-firmware-a/ ] ; then
-	if [ -f .gitlab-runner ] ; then
-		echo "git clone -b ${TFA} https://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a.git"
-		git clone -b ${TFA} https://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a.git --depth=1 ./trusted-firmware-a/
-	else
-		echo "git clone -b ${TFA} ${TFA_GIT}"
-		git clone -b ${TFA} ${TFA_GIT} --depth=1 ./trusted-firmware-a/
-	fi
+log_sep
+echo "[${UBOOT}:${TFA}:${OPTEE}:${TI_FIRMWARE}]"
+log_sep
+
+# --- Repository Cloning ---
+
+# TI Firmware
+if [ ! -d "./ti-linux-firmware/" ]; then
+	URL=$(get_git_url "/TexasInstruments/ti-linux-firmware.git" "${TI_FIRMWARE_GIT}")
+	echo "Cloning TI Firmware from: ${URL}"
+	git clone -b "${TI_FIRMWARE}" "${URL}" --depth=1 ./ti-linux-firmware/
 fi
 
-#rm -rf ./optee_os/ || true
-if [ ! -d ./optee_os/ ] ; then
-	if [ -f .gitlab-runner ] ; then
-		echo "git clone -b ${OPTEE} https://forgejo.gfnd.rcn-ee.org:3000/mirror/optee_os.git"
-		git clone -b ${OPTEE} https://forgejo.gfnd.rcn-ee.org:3000/mirror/optee_os.git --depth=1 ./optee_os/
-	else
-		echo "git clone -b ${OPTEE} https://github.com/OP-TEE/optee_os.git"
-		git clone -b ${OPTEE} https://github.com/OP-TEE/optee_os.git --depth=1 ./optee_os/
-	fi
+# TFA
+if [ ! -d "./trusted-firmware-a/" ]; then
+	URL=$(get_git_url "/mirror/trusted-firmware-a.git" "${TFA_GIT}")
+	echo "Cloning TFA from: ${URL}"
+	git clone -b "${TFA}" "${URL}" --depth=1 ./trusted-firmware-a/
 fi
 
-#rm -rf ./u-boot/ || true
-if [ ! -d ./u-boot/ ] ; then
-	echo "git clone -b ${UBOOT} ${UBOOT_GIT} --depth=1 ./u-boot/"
-	git clone -b ${UBOOT} ${UBOOT_GIT} --depth=1 ./u-boot/
+# OP-TEE
+if [ ! -d "./optee_os/" ]; then
+	URL=$(get_git_url "/mirror/optee_os.git" "${OPTEE_GIT}")
+	echo "Cloning OP-TEE from: ${URL}"
+	git clone -b "${OPTEE}" "${URL}" --depth=1 ./optee_os/
 fi
 
-mkdir -p ${DIR}/public/
+# U-Boot
+if [ ! -d "./u-boot/" ]; then
+	URL=$(get_git_url "/BeagleBoard.org/u-boot.git" "${UBOOT_GIT}")
+	echo "Cloning U-Boot from: ${URL}"
+	git clone -b "${UBOOT}" "${URL}" --depth=1 ./u-boot/
+fi
 
-#pocketbeagle2
+log_sep
+mkdir -p "${DIR}/public/"
+
+# --- Build Configuration (PocketBeagle2) ---
+
 SOC_NAME=am62x
-SECURITY_TYPE=hs-fs
-SIGNED=
+SECURITY_TYPE="hs-fs"
+SIGNED=""
 TFA_BOARD="lite"
 #TFA_EXTRA_ARGS="K3_USART=0x6 BL32_BASE=0x80080000 PRELOADED_BL33_BASE=0x82000000"
+TFA_EXTRA_ARGS=""
 OPTEE_PLATFORM="k3-am62x"
 #OPTEE_EXTRA_ARGS="CFG_CONSOLE_UART=0x6 CFG_TZDRAM_START=0x80080000"
+OPTEE_EXTRA_ARGS=""
 UBOOT_CFG_CORTEXR="am62_pocketbeagle2_r5_defconfig"
 UBOOT_CFG_CORTEXR_USBDFU="${UBOOT_CFG_CORTEXR} am62x_r5_usbdfu.config"
 UBOOT_CFG_CORTEXA="am62_pocketbeagle2_a53_defconfig"
 
-echo "make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed K3_USART=0x6 BL32_BASE=0x80080000 PRELOADED_BL33_BASE=0x82000000 TARGET_BOARD=${TFA_BOARD} all"
-make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed K3_USART=0x6 BL32_BASE=0x80080000 PRELOADED_BL33_BASE=0x82000000 TARGET_BOARD=${TFA_BOARD} all
+# --- TFA Build ---
 
-if [ ! -f ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ] ; then
-	echo "Failure in ./trusted-firmware-a/"
-	ls -lha ${DIR}/trusted-firmware-a/
+echo "Building TFA (Target Board: ${TFA_BOARD})..."
+if ! make -C ./trusted-firmware-a/ -j"${JOBS}" \
+	CROSS_COMPILE="${CC64}" \
+	CFLAGS="" \
+	LDFLAGS="" \
+	ARCH=aarch64 \
+	PLAT=k3 \
+	SPD=opteed \
+	K3_USART=0x6  \
+	BL32_BASE=0x80080000 \
+	PRELOADED_BL33_BASE=0x82000000 \
+	${TFA_EXTRA_ARGS} all; then
+	echo "Error: TFA build failed."
+	ls -lha "${DIR}/trusted-firmware-a/"
 	exit 2
-else
-	cp -v ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ${DIR}/public/
 fi
 
-echo "make -C ./optee_os/ -j4 O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y CFG_CONSOLE_UART=0x6 CFG_TZDRAM_START=0x80080000 PLATFORM=${OPTEE_PLATFORM} all"
-make -C ./optee_os/ -j4 O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y CFG_CONSOLE_UART=0x6 CFG_TZDRAM_START=0x80080000 PLATFORM=${OPTEE_PLATFORM} all
+TFA_OUTPUT="./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin"
 
-if [ ! -f ./optee/core/tee-pager_v2.bin ] ; then
-	echo "Failure in ${OPTEE_DIR}"
-	ls -lha ${DIR}/optee/
-	exit 2
+if [ -f "$TFA_OUTPUT" ]; then
+	SIZE_KB=$(( $(stat -c%s "$TFA_OUTPUT") / 1024 ))
+	echo "TFA Output found: $TFA_OUTPUT (${SIZE_KB} KB)"
+	cp -v "$TFA_OUTPUT" "${DIR}/public/"
+	report_and_compare "$TFA_OUTPUT" "TFA_BL31"
 else
-	cp -v ./optee/core/tee-pager_v2.bin ${DIR}/public/
+	echo "Error: bl31.bin not found after TFA build."
+	exit 2
 fi
 
-rm -rf ${DIR}/optee/ || true
+rm -rf "${DIR}/trusted-firmware-a"
 
-if [ ! -f .gitlab-runner ] ; then
-	# Build tiboot3 with DFU support
+# --- OP-TEE Build ---
 
-	echo "make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR_USBDFU"
-	make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR_USBDFU
+log_sep
+echo "Building OP-TEE (Platform: ${OPTEE_PLATFORM})..."
+if ! make -C ./optee_os/ -j"${JOBS}" \
+	O=../optee \
+	CROSS_COMPILE="${CC32}" \
+	CROSS_COMPILE64="${CC64}" \
+	CFLAGS="" \
+	LDFLAGS="" \
+	CFG_CONSOLE_UART=0x6 \
+	CFG_TZDRAM_START=0x80080000 \
+	CFG_ARM64_core=y \
+	PLATFORM="${OPTEE_PLATFORM}" \
+	${OPTEE_EXTRA_ARGS} all; then
+	echo "Error: OP-TEE build failed."
+	exit 2
+fi
 
-	echo "make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
-	make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/
+TEE_PAGER="./optee/core/tee-pager_v2.bin"
+if [ -f "$TEE_PAGER" ]; then
+	SIZE_KB=$(( $(stat -c%s "$TEE_PAGER") / 1024 ))
+	echo "OP-TEE Pager found: $TEE_PAGER (${SIZE_KB} KB)"
+	cp -v "$TEE_PAGER" "${DIR}/public/"
+	report_and_compare "$TEE_PAGER" "OPTEE_PAGER"
+else
+	echo "Error: tee-pager_v2.bin not found after OP-TEE build."
+	exit 2
+fi
 
-	if [ ! -f ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ] ; then
-		echo "Failure in u-boot CORTEXR build of [$UBOOT_CFG_CORTEXR_USBDFU]"
-		ls -lha ${DIR}/CORTEXR/
+rm -rf "${DIR}/optee/"
+
+# --- U-Boot Cortex-R Build ---
+
+build_label="Cortex-R"
+build_dir="CORTEXR"
+
+log_sep
+echo "Building U-Boot ${build_label} ($UBOOT_CFG_CORTEXR)..."
+make -C ./u-boot/ O=../${build_dir} CROSS_COMPILE="${CC32}" "${UBOOT_CFG_CORTEXR}"
+
+if ! make -C ./u-boot/ -j"${JOBS}" O=../${build_dir} CROSS_COMPILE="${CC32}" BINMAN_INDIRS="${DIR}/ti-linux-firmware/"; then
+	echo "Failure in u-boot ${build_label} build of [$UBOOT_CFG_CORTEXR]"
+	ls -lha "${DIR}/${build_dir}/"
+	exit 2
+fi
+
+TIBOOT3_BIN="${DIR}/${build_dir}/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin"
+SYSFW_ITB="${DIR}/${build_dir}/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb"
+
+if [ -f "$TIBOOT3_BIN" ]; then
+	echo "${build_label} Bin found: $TIBOOT3_BIN ($(( $(stat -c%s "$TIBOOT3_BIN") / 1024 )) KB)"
+	cp -v "$TIBOOT3_BIN" "${DIR}/public/tiboot3.bin"
+	report_and_compare "$TIBOOT3_BIN" "TIBOOT3_BIN"
+
+	if [ -f "$SYSFW_ITB" ]; then
+		echo "${build_label} ITB found: $SYSFW_ITB ($(( $(stat -c%s "$SYSFW_ITB") / 1024 )) KB)"
+		cp -v "$SYSFW_ITB" "${DIR}/public/sysfw.itb"
+		report_and_compare "$SYSFW_ITB" "SYSFW_ITB"
+	fi
+else
+	echo "Error: Required ${build_label} binary $SYSFW_ITB not found."
+	exit 2
+fi
+
+rm -rf "${DIR}/${build_dir}/"
+
+# --- U-Boot Cortex-R DFU Build ---
+
+build_label="Cortex-R DFU"
+build_dir="CORTEXRDFU"
+
+log_sep
+echo "Building U-Boot ${build_label} ($UBOOT_CFG_CORTEXR)..."
+make -C ./u-boot/ O=../${build_dir} CROSS_COMPILE="${CC32}" "${UBOOT_CFG_CORTEXR_USBDFU}"
+
+if ! make -C ./u-boot/ -j"${JOBS}" O=../${build_dir} CROSS_COMPILE="${CC32}" BINMAN_INDIRS="${DIR}/ti-linux-firmware/"; then
+	echo "Failure in u-boot ${build_label} build of [$UBOOT_CFG_CORTEXR_USBDFU]"
+	ls -lha "${DIR}/${build_dir}/"
+	exit 2
+fi
+
+TIBOOT3_USBDFU_BIN="${DIR}/${build_dir}/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin"
+SYSFW_USBDFU_ITB="${DIR}/${build_dir}/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb"
+
+if [ -f "$TIBOOT3_USBDFU_BIN" ]; then
+	echo "${build_label} Bin found: $TIBOOT3_USBDFU_BIN ($(( $(stat -c%s "$TIBOOT3_USBDFU_BIN") / 1024 )) KB)"
+	cp -v "$TIBOOT3_USBDFU_BIN" "${DIR}/public/tiboot3-usbdfu.bin"
+	report_and_compare "$TIBOOT3_USBDFU_BIN" "TIBOOT3_USBDFU_BIN"
+
+	if [ -f "$SYSFW_USBDFU_ITB" ]; then
+		echo "${build_label} ITB found: $SYSFW_USBDFU_ITB ($(( $(stat -c%s "$SYSFW_USBDFU_ITB") / 1024 )) KB)"
+		cp -v "$SYSFW_USBDFU_ITB" "${DIR}/public/sysfw-usbdfu.itb"
+		report_and_compare "$SYSFW_USBDFU_ITB" "SYSFW_USBDFU_ITB"
+	fi
+else
+	echo "Error: Required ${build_label} binary $SYSFW_ITB not found."
+	exit 2
+fi
+
+rm -rf "${DIR}/${build_dir}/"
+
+# --- U-Boot Cortex-A Build ---
+
+build_label="Cortex-A"
+build_dir="CORTEXA"
+
+if [ -f "${DIR}/public/bl31.bin" ] && [ -f "${DIR}/public/tee-pager_v2.bin" ]; then
+	log_sep
+	echo "Building U-Boot ${build_label} ($UBOOT_CFG_CORTEXA)..."
+
+	make -C ./u-boot/ O=../${build_dir} CROSS_COMPILE="${CC64}" "${UBOOT_CFG_CORTEXA}"
+
+	if ! make -C ./u-boot/ -j"${JOBS}" O=../${build_dir} CROSS_COMPILE="${CC64}" \
+		BL31="${DIR}/public/bl31.bin" \
+		TEE="${DIR}/public/tee-pager_v2.bin" \
+		BINMAN_INDIRS="${DIR}/ti-linux-firmware/"; then
+		echo "Error: U-Boot ${build_label} build failed."
 		exit 2
-	else
-		cp -v ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ${DIR}/public/tiboot3-usbdfu.bin
-		if [ -f ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ] ; then
-			cp -v ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ${DIR}/public/sysfw-usbdfu.itb
-		fi
 	fi
 
-	rm -rf ${DIR}/CORTEXR/ || true
-fi
+	TISPL_BIN="${DIR}/${build_dir}/tispl.bin${SIGNED}"
+	UBOOT_IMG="${DIR}/${build_dir}/u-boot.img${SIGNED}"
 
-# Build normal tiboot3
+	if [ -f "$TISPL_BIN" ]; then
+		cp -v "$TISPL_BIN" "${DIR}/public/tispl.bin" || true
+		[ -f "$UBOOT_IMG" ] && cp -v "$UBOOT_IMG" "${DIR}/public/u-boot.img" || true
 
-echo "make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR"
-make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR
-
-echo "make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
-make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/
-
-if [ ! -f ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ] ; then
-	echo "Failure in u-boot CORTEXR build of [$UBOOT_CFG_CORTEXR]"
-	ls -lha ${DIR}/CORTEXR/
-	exit 2
-else
-	cp -v ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ${DIR}/public/tiboot3.bin
-	cp -v ${DIR}/CORTEXR/.config ${DIR}/public/r5_defconfig
-	if [ -f ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ] ; then
-		cp -v ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ${DIR}/public/sysfw.itb
-	fi
-fi
-
-rm -rf ${DIR}/CORTEXR/ || true
-
-# Build Normal u-boot.img
-
-if [ -f ${DIR}/public/bl31.bin ] ; then
-	if [ -f ${DIR}/public/tee-pager_v2.bin ] ; then
-		echo "make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA"
-		make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA
-
-		echo "make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/${DEVICE}/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
-		make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
-
-		if [ ! -f ${DIR}/CORTEXA/tispl.bin${SIGNED} ] ; then
-			echo "Failure in u-boot CORTEXA build of [$UBOOT_CFG_CORTEXA]"
-			ls -lha ${DIR}/CORTEXA/
-			exit 2
-		else
-			cp -v ${DIR}/CORTEXA/tispl.bin${SIGNED} ${DIR}/public/tispl.bin || true
-			cp -v ${DIR}/CORTEXA/u-boot.img${SIGNED} ${DIR}/public/u-boot.img || true
-			cp -v ${DIR}/CORTEXA/.config ${DIR}/public/a53_defconfig || true
-		fi
+		report_and_compare "$TISPL_BIN" "TISPL_BIN"
+		[ -f "$UBOOT_IMG" ] && report_and_compare "$UBOOT_IMG" "UBOOT_IMG"
 	else
-		echo "Missing ${DIR}/public/tee-pager_v2.bin"
+		echo "Failure in u-boot ${build_label} build of [$UBOOT_CFG_CORTEXA]"
+		ls -lha "${DIR}/${build_dir}/"
 		exit 2
 	fi
 else
-	echo "Missing ${DIR}/public/bl31.bin"
+	echo "Error: Missing required dependencies in public/ (bl31.bin or tee-pager_v2.bin)"
 	exit 2
 fi
 
-if [ ! -f .gitlab-runner ] ; then
+rm -rf "${DIR}/${build_dir}/"
+
+# --- U-Boot Cortex-A Zephyr DFU Build ---
+
+build_label="Cortex-A Zephyr DFU"
+build_dir="CORTEXADFU"
+
+if [ -f "${DIR}/public/bl31.bin" ] && [ -f "${DIR}/public/tee-pager_v2.bin" ]; then
+	log_sep
+	echo "Building U-Boot ${build_label} ($UBOOT_CFG_CORTEXA)..."
+
+	make -C ./u-boot/ O=../${build_dir} CROSS_COMPILE="${CC64}" "${UBOOT_CFG_CORTEXA}"
+
 	# Build u-boot with default zephyr DFU support.
 	# No need to build from scratch since all we are doing is a bootcommand change.
-	if [ -f ${DIR}/public/bl31.bin ] ; then
-		if [ -f ${DIR}/public/tee-pager_v2.bin ] ; then
-			echo "Add BOOTCOMMAND to autostart Zephyr DFU"
-			echo 'CONFIG_BOOTCOMMAND="setenv dfu_alt_info zephyr.bin ram 0x080200000 0x1FE00000; dfu 0 ram 0; dcache flush; icache flush; dcache off; icache off; go 0x080200000;"' >> ./CORTEXA/.config
-			make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 olddefconfig
+	echo "Add BOOTCOMMAND to autostart Zephyr DFU"
+	echo 'CONFIG_BOOTCOMMAND="setenv dfu_alt_info zephyr.bin ram 0x080200000 0x1FE00000; dfu 0 ram 0; dcache flush; icache flush; dcache off; icache off; go 0x080200000;"' >> ./${build_dir}/.config
+	make -C ./u-boot/ O=../${build_dir} CROSS_COMPILE="${CC64}" olddefconfig
 
-			echo "make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/${DEVICE}/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
-			make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
-
-			if [ ! -f ${DIR}/CORTEXA/tispl.bin${SIGNED} ] ; then
-				echo "Failure in u-boot CORTEXA build of [$UBOOT_CFG_CORTEXA]"
-				ls -lha ${DIR}/CORTEXA/
-				exit 2
-			else
-				# No need to copy tispl. u-boot-zephyrdfu.img is basically just normal u-boot + bootcommand.
-				cp -v ${DIR}/CORTEXA/u-boot.img${SIGNED} ${DIR}/public/u-boot-zephyrdfu.img || true
-			fi
-		else
-			echo "Missing ${DIR}/public/tee-pager_v2.bin"
-			exit 2
-		fi
-	else
-		echo "Missing ${DIR}/public/bl31.bin"
+	if ! make -C ./u-boot/ -j"${JOBS}" O=../${build_dir} CROSS_COMPILE="${CC64}" \
+		BL31="${DIR}/public/bl31.bin" \
+		TEE="${DIR}/public/tee-pager_v2.bin" \
+		BINMAN_INDIRS="${DIR}/ti-linux-firmware/"; then
+		echo "Error: U-Boot ${build_label} build failed."
 		exit 2
 	fi
+
+	UBOOT_ZEPHYR_IMG="${DIR}/${build_dir}/u-boot.img${SIGNED}"
+
+	if [ -f "$UBOOT_ZEPHYR_IMG" ]; then
+		cp -v "$UBOOT_ZEPHYR_IMG" "${DIR}/public/u-boot-zephyrdfu.img" || true
+
+		report_and_compare "$UBOOT_ZEPHYR_IMG" "UBOOT_ZEPHYR_IMG"
+	else
+		echo "Failure in u-boot ${build_label} build of [$UBOOT_CFG_CORTEXA]"
+		ls -lha "${DIR}/${build_dir}/"
+		exit 2
+	fi
+else
+	echo "Error: Missing required dependencies in public/ (bl31.bin or tee-pager_v2.bin)"
+	exit 2
 fi
 
-rm -rf ${DIR}/CORTEXA/ || true
+rm -rf "${DIR}/${build_dir}/"
 
-#cd ./u-boot/
-#git bisect log
-#cd ${DIR}/
-#
+log_sep
+echo "FINAL BUILD SIZE REPORT"
+printf "%-15s | %-12s | %-12s | %-12s | %-10s\n" "COMPONENT" "SIZE (KB)" "DIFF (KB)" "DIFF (B)" "STATUS"
+echo "------------------------------------------------------------------------------------"
+
+if [ -f ".build_summary.tmp" ]; then
+	while IFS='|' read -r label current_bytes diff_bytes diff_kb status; do
+		# Convert current_bytes to KB for the table
+		current_kb=$((current_bytes / 1024))
+
+		# Format the diff string to show +/-
+		if [ "$diff_bytes" -gt 0 ]; then
+			diff_str_kb="+${diff_kb}KB"
+			diff_str_b="+${diff_bytes}B"
+		elif [ "$diff_bytes" -lt 0 ]; then
+			# Use absolute value for display
+			abs_diff_kb=$(( (diff_kb * -1) ))
+			abs_diff_b=$(( (diff_bytes * -1) ))
+			diff_str_kb="-${abs_diff_kb}KB"
+			diff_str_b="-${abs_diff_b}B"
+		else
+			diff_str_kb="0KB"
+			diff_str_b="0B"
+		fi
+
+		printf "%-15s | %-12s | %-12s | %-12s | %-10s\n" \
+			"$label" "$current_kb" "$diff_str_kb" "$diff_str_b" "$status"
+	done < ".build_summary.tmp"
+
+	rm ".build_summary.tmp"
+else
+	echo "No summary data available."
+fi
+log_sep
+
+# Finalize sizes
+if [ -f ".new_sizes.txt" ]; then
+	mv .new_sizes.txt .last_build_sizes.txt
+fi
+
+echo "Build Process Completed Successfully."
