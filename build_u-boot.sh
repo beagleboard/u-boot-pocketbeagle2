@@ -156,6 +156,7 @@ if ! make -C ./trusted-firmware-a/ -j"${JOBS}" \
 	K3_USART=0x6  \
 	BL32_BASE=0x80080000 \
 	PRELOADED_BL33_BASE=0x82000000 \
+	TARGET_BOARD="${TFA_BOARD}" \
 	${TFA_EXTRA_ARGS} all; then
 	echo "Error: TFA build failed."
 	ls -lha "${DIR}/trusted-firmware-a/"
