@@ -238,7 +238,7 @@ if [ -f "$TIBOOT3_BIN" ]; then
 		report_and_compare "$SYSFW_ITB" "SYSFW_ITB"
 	fi
 else
-	echo "Error: Required ${build_label} binary $SYSFW_ITB not found."
+	echo "Error: Required ${build_label} binary $TIBOOT3_BIN not found."
 	exit 2
 fi
 
@@ -259,21 +259,21 @@ if ! make -C ./u-boot/ -j"${JOBS}" O=../${build_dir} CROSS_COMPILE="${CC32}" BIN
 	exit 2
 fi
 
-TIBOOT3_USBDFU_BIN="${DIR}/${build_dir}/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin"
-SYSFW_USBDFU_ITB="${DIR}/${build_dir}/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb"
+TIBOOT3_DFU_BIN="${DIR}/${build_dir}/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin"
+SYSFW_DFU_ITB="${DIR}/${build_dir}/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb"
 
-if [ -f "$TIBOOT3_USBDFU_BIN" ]; then
-	echo "${build_label} Bin found: $TIBOOT3_USBDFU_BIN ($(( $(stat -c%s "$TIBOOT3_USBDFU_BIN") / 1024 )) KB)"
-	cp -v "$TIBOOT3_USBDFU_BIN" "${DIR}/public/tiboot3-usbdfu.bin"
-	report_and_compare "$TIBOOT3_USBDFU_BIN" "TIBOOT3_USBDFU_BIN"
+if [ -f "$TIBOOT3_DFU_BIN" ]; then
+	echo "${build_label} Bin found: $TIBOOT3_DFU_BIN ($(( $(stat -c%s "$TIBOOT3_DFU_BIN") / 1024 )) KB)"
+	cp -v "$TIBOOT3_DFU_BIN" "${DIR}/public/tiboot3-usbdfu.bin"
+	report_and_compare "$TIBOOT3_DFU_BIN" "TIBOOT3_DFU_BIN"
 
-	if [ -f "$SYSFW_USBDFU_ITB" ]; then
-		echo "${build_label} ITB found: $SYSFW_USBDFU_ITB ($(( $(stat -c%s "$SYSFW_USBDFU_ITB") / 1024 )) KB)"
-		cp -v "$SYSFW_USBDFU_ITB" "${DIR}/public/sysfw-usbdfu.itb"
-		report_and_compare "$SYSFW_USBDFU_ITB" "SYSFW_USBDFU_ITB"
+	if [ -f "$SYSFW_DFU_ITB" ]; then
+		echo "${build_label} ITB found: $SYSFW_DFU_ITB ($(( $(stat -c%s "$SYSFW_DFU_ITB") / 1024 )) KB)"
+		cp -v "$SYSFW_DFU_ITB" "${DIR}/public/sysfw-usbdfu.itb"
+		report_and_compare "$SYSFW_DFU_ITB" "SYSFW_DFU_ITB"
 	fi
 else
-	echo "Error: Required ${build_label} binary $SYSFW_ITB not found."
+	echo "Error: Required ${build_label} binary $TIBOOT3_DFU_BIN not found."
 	exit 2
 fi
 
@@ -344,12 +344,12 @@ if [ -f "${DIR}/public/bl31.bin" ] && [ -f "${DIR}/public/tee-pager_v2.bin" ]; t
 		exit 2
 	fi
 
-	UBOOT_ZEPHYR_IMG="${DIR}/${build_dir}/u-boot.img${SIGNED}"
+	UBOOT_ZEPHYR="${DIR}/${build_dir}/u-boot.img${SIGNED}"
 
-	if [ -f "$UBOOT_ZEPHYR_IMG" ]; then
-		cp -v "$UBOOT_ZEPHYR_IMG" "${DIR}/public/u-boot-zephyrdfu.img" || true
+	if [ -f "$UBOOT_ZEPHYR" ]; then
+		cp -v "$UBOOT_ZEPHYR" "${DIR}/public/u-boot-zephyrdfu.img" || true
 
-		report_and_compare "$UBOOT_ZEPHYR_IMG" "UBOOT_ZEPHYR_IMG"
+		report_and_compare "$UBOOT_ZEPHYR" "UBOOT_ZEPHYR"
 	else
 		echo "Failure in u-boot ${build_label} build of [$UBOOT_CFG_CORTEXA]"
 		ls -lha "${DIR}/${build_dir}/"

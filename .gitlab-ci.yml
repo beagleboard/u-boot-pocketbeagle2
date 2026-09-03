@@ -65,6 +65,6 @@ pages:
   artifacts:
     when: on_success
     paths:
-      - public/
+      - public
   only:
     - main
