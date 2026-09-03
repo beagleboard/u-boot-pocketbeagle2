@@ -251,7 +251,7 @@ build_dir="CORTEXRDFU"
 
 log_sep
 echo "Building U-Boot ${build_label} ($UBOOT_CFG_CORTEXR)..."
-make -C ./u-boot/ O=../${build_dir} CROSS_COMPILE="${CC32}" "${UBOOT_CFG_CORTEXR_USBDFU}"
+make -C ./u-boot/ O=../${build_dir} CROSS_COMPILE="${CC32}" am62_pocketbeagle2_r5_defconfig am62x_r5_usbdfu.config
 
 if ! make -C ./u-boot/ -j"${JOBS}" O=../${build_dir} CROSS_COMPILE="${CC32}" BINMAN_INDIRS="${DIR}/ti-linux-firmware/"; then
 	echo "Failure in u-boot ${build_label} build of [$UBOOT_CFG_CORTEXR_USBDFU]"
