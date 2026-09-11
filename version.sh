@@ -6,7 +6,7 @@ BUILD_REPO="u-boot-pocketbeagle2"
 #https://github.com/TexasInstruments/ti-linux-firmware/compare/11.02.11...11.02.18
 #https://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware/compare/11.02.11...11.02.18
 TI_FIRMWARE_GIT="${TI_FIRMWARE_GIT:-https://github.com/TexasInstruments/ti-linux-firmware.git}"
-TI_FIRMWARE="${TI_FIRMWARE:-11.02.11}"
+TI_FIRMWARE="${TI_FIRMWARE:-11.02.18}"
 
 #https://github.com/TrustedFirmware-A/trusted-firmware-a.git
 #https://github.com/TrustedFirmware-A/trusted-firmware-a/compare/lts-v2.14.1...lts-v2.14.6
