@@ -119,6 +119,19 @@ if [ ! -d "./u-boot/" ]; then
 	URL=$(get_git_url "/BeagleBoard.org/u-boot.git" "${UBOOT_GIT}")
 	echo "Cloning U-Boot from: ${URL}"
 	git clone -b "${UBOOT}" "${URL}" --depth=1 ./u-boot/
+
+	# git bisect:
+	#git clone "${URL}" ./u-boot/ --reference /opt/git_repo/u-boot
+	#cd ./u-boot/
+
+	#git bisect start
+	#git bisect bad <>
+	#git bisect good <>
+
+
+	#patch -p1 < ../patches/0001-*.patch
+
+	#cd ../
 fi
 
 log_sep
@@ -199,6 +212,7 @@ else
 	exit 2
 fi
 
+rm -rf "${DIR}/optee_os/"
 rm -rf "${DIR}/optee/"
 
 # --- U-Boot Cortex-R Build ---
@@ -357,6 +371,7 @@ else
 fi
 
 rm -rf "${DIR}/${build_dir}/"
+rm -rf "${DIR}/u-boot"
 
 log_sep
 echo "FINAL BUILD SIZE REPORT"
